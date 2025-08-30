@@ -14,6 +14,7 @@ typedef struct {
     int kind;
     int t;
     int crow;
+    int capacity;
     int cost;
     double coordinate_x;
     double coordinate_y;
@@ -33,13 +34,12 @@ typedef struct Node {
 } Node;
 
 extern Spot spots[MAX_NODES];  // 構造体配列の外部宣言
-extern Node* create_node(int key,int value, double t, double elapsed);
-extern void add_child(Node* parent, Node* child);
-extern Node* genes[POPULATION];
+extern int genes[POPULATION][MAX_NODES];
+extern int times[POPULATION];
+extern int queue_range[MAX_NODES];
+extern double probs[POPULATION][MAX_NODES];
 extern double fitness[POPULATION];
 extern void readdata(const char * filename);
-extern void add_child_search(Node* root, int targetKey, int newKey, int newValue, double newT, double newElapsed);
-extern Node* find_node(Node* root, int targetKey);
 extern void initialize(int start, int goal);
 extern void calc_fitness();
 

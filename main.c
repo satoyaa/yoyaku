@@ -3,18 +3,21 @@
 #include <time.h>
 #include "extern.h"
 
-Node* genes[POPULATION];
+int genes[POPULATION][MAX_NODES];
+double probs[POPULATION][MAX_NODES];
 Spot spots[MAX_NODES];
 double fitness[POPULATION];
+int queue_range[MAX_NODES];
 
 int main(){
     //データの読込．
     readdata("sampledata.txt");
-    printf("%d %lf %lf\n",spots[3].value , spots[3].coordinate_x, spots[3].coordinate_y);
+    //printf("%d %lf %lf\n",spots[3].value , spots[3].coordinate_x, spots[3].coordinate_y);
     //初期個体生成．
 
     initialize(0, 29);
     //評価値計算．
+    printf("%f\n",probs[0][0]);
     calc_fitness();
     for (int i = 0; i < 3; i++)
     {
