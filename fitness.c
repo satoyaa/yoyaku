@@ -33,7 +33,7 @@ int calc_travel_time(int i, int j){
 
 
 void calc_queue_range(int minutes){
-    for (int k = 0; k < MAX_NODES; k++)
+    for (int k = 0; k < MAX_SPOTS; k++)
     {
         double lambda_per_minute = spots[k].crow / 60; //到着率　1時間当たりの平均来客者数が分かりやすい？
         double mu_per_minute = 1 / spots[k].t; //サービス率？言葉の定義あってるか不明
@@ -61,26 +61,62 @@ void calc_queue_range(int minutes){
 void calc_fitness(){
     for (int i = 0; i < POPULATION; i++)
     {
-        int duration = 0;
         //初期化.
-        for (int j = 0; j < MAX_NODES; j++)
+        int sum = 0;
+        int sum_duration = 0;  //デバッグ用
+        int sum_satisdy = 0;   //デバッグ用
+        for (int j = 0; j < LOOPS; j++)
         {
-            queue_range[j] = spots[j].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
-        }
-
-        for (int j = 0; j < MAX_NODES; j++)
-        {
-            int minutes = 0;
-            minutes += queue_range[j] / (spots[genes[i][j]].capacity * spots[genes[i][j]].t);    //<==============ワンちゃんバグる
-            minutes += calc_travel_time(genes[i][j], genes[i][j+1]); 
-            if (duration + minutes> TIMELIMIT)
+            int duration = 0;
+            int satisfy = 0;
+            float limit = INFINITY;
+            int reserve_spot = -1;
+            srand((unsigned int)time(NULL));
+            for (int k = 0; k < MAX_SPOTS; k++)
             {
-                duration += (calc_travel_time(genes[i][j], genes[i][MAX_NODES-1])+queue_range[j] / (spots[genes[i][j]].capacity * spots[genes[i][j]].t));
-                break;
+                queue_range[k] = spots[k].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
             }
-            calc_queue_range(minutes);
-            duration += minutes;
+            for (int k = 0; k < MAX_SPOTS-1; k++)
+            {
+                //if(genes_reserves[i][k]!=-1){reserve_spot=genes_reserves[i][k];limit=duration + queue_range[reserve_spot] / (spots[genes[i][reserve_spot]].capacity * spots[genes[i][reserve_spot]].t);}
+                if(genes_reserves[i][k]!=-1){reserve_spot=genes_reserves[i][k];limit=duration*1.5;} //時間計算　一時的
+                //if(limit == 0){limit == duration + calc_travel_time(genes[i][k], genes[i][reserve_spot]);} //待ち時間0の場合をまた考える
+                int minutes = 0;
+                int wait = queue_range[k] / (spots[genes[i][k]].capacity * spots[genes[i][k]].t);
+                if(k==reserve_spot){
+                    if(duration <= limit){duration = limit;wait=0;} //早く着いたら待つ
+                    limit = INFINITY;
+                }
+                minutes += wait + spots[genes[i][k]].t;
+                //printf("hello2 %d\n", k);
+                minutes += calc_travel_time(genes[i][k], genes[i][k+1]); 
+                //printf("limit:%f k:%d reserve:%d \n", limit, k, reserve_spot);
+                if(duration + minutes > limit){
+                    duration += (calc_travel_time(genes[i][k], genes[i][reserve_spot])+queue_range[k] / (spots[genes[i][k]].capacity * spots[genes[i][k]].t));
+                    k = reserve_spot-1;
+                    continue;
+                }
+                if (duration + minutes > TIMELIMIT)
+                {
+                    duration += (calc_travel_time(genes[i][k], genes[i][MAX_SPOTS-1])+queue_range[k] / (spots[genes[i][k]].capacity * spots[genes[i][k]].t));
+                    break;
+                }
+                calc_queue_range(minutes);
+                //printf("hello4\n");
+                duration += minutes;
+                satisfy += spots[genes[i][k]].value;
+            }
+            if (duration > TIMELIMIT)
+            {
+                satisfy -= 50;
+            }
+            
+            sum+= satisfy;
+            sum_duration+=duration;
+            sum_satisdy+=satisfy;
         }
-        fitness[i] = duration;
+        fitness[i] = sum / LOOPS;
+        printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisdy/LOOPS);
     }
 }
+

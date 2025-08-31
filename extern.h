@@ -1,11 +1,14 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 1000
-#define POPULATION 100
-#define MAX_NODES 30
+#define MAX_ITERATION 10
+#define POPULATION 10
+#define MAX_SPOTS 30
+#define MAX_RESERVES 10
 #define SPEED 3 //速度（km/h）
-#define TIMELIMIT 60 //制限時間(分)
+#define TIMELIMIT 240 //制限時間(分)
+#define LOOPS 3
+#define reserve_rate 0.5
 
 
 typedef struct {
@@ -33,12 +36,15 @@ typedef struct Node {
     struct Node **children; // 子ノードの配列
 } Node;
 
-extern Spot spots[MAX_NODES];  // 構造体配列の外部宣言
-extern int genes[POPULATION][MAX_NODES];
+extern Spot spots[MAX_SPOTS];  // 構造体配列の外部宣言
+extern int genes[POPULATION][MAX_SPOTS];
+extern int genes_reserves[POPULATION][MAX_SPOTS];
 extern int times[POPULATION];
-extern int queue_range[MAX_NODES];
-extern double probs[POPULATION][MAX_NODES];
+extern int queue_range[MAX_SPOTS];
 extern double fitness[POPULATION];
+extern double crossover_rate;
+extern void crossover_pmx();
+extern void selection_tournament();
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness();

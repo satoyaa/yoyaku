@@ -6,7 +6,7 @@
 void readdata(const char * filename){
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        perror("ファイルを開けませんでした");
+        perror("I can't open such a file");
     }
 
     
@@ -40,7 +40,7 @@ void readdata(const char * filename){
         int reservable;
         int penalty;
 
-        int n = sscanf(line, "%d %d %d %d %d %d _%d %lf %lf %d %d",
+        int n = sscanf(line, "%d %d %d %d %d %d %d %lf %lf %d %d",
                        &vert, &value, &kind, &t, &crow, &capacaity, &cost,
                        &coordinate_x, &coordinate_y,
                        &reservable, &penalty);

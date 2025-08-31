@@ -3,9 +3,9 @@
 #include <time.h>
 #include "extern.h"
 
-int main(){
+int makedata(){
     FILE *fp;
-    int rows = 30;   // 行数
+    int rows = MAX_SPOTS;   // 行数
     int i;
     int vert;
     int value;
@@ -32,7 +32,7 @@ int main(){
     // データ生成＆保存
     for (i = 0; i < rows; i++) {
         vert = i;
-        value = (rand() % 3)*10;
+        value = (rand() % 3 + 1)*10;
         kind = rand() % 5;
         t = (rand() % 3 + 1) * 30;
         capacity = rand() %20 + 10;   //<====ここだけ順番逆
