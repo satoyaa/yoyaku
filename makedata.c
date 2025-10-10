@@ -3,16 +3,16 @@
 #include <time.h>
 #include "extern.h"
 
-int makedata(){
+int mai(){
     FILE *fp;
     int rows = MAX_SPOTS;   // 行数
     int i;
     int vert;
     int value;
     int kind;
-    int t;
+    int t; //除算を行うため0<capacity
     int crow;
-    int capacity;
+    int capacity; //除算を行うため0<capacity
     int cost;
     float coordinate_x;
     float coordinate_y;
@@ -35,13 +35,19 @@ int makedata(){
         value = (rand() % 3 + 1)*10;
         kind = rand() % 5;
         t = (rand() % 3 + 1) * 30;
-        capacity = rand() %20 + 10;   //<====ここだけ順番逆
         crow = capacity + rand() % 20 - 5;           //<====ここだけ順番逆(座席数の+15～-5人)
+        capacity = rand() %20 + 10;   //<====ここだけ順番逆
         cost = (rand() % 30) * 100;
         coordinate_x = (float)rand() / RAND_MAX * 500;
         coordinate_y = (float)rand() / RAND_MAX * 500;
         reservable = rand() % 2;
+        if (reservable)
+        {
+            /* code */
+        }
+        
         penalty = (rand() % 40) + 10;
+        if(i==0){t=1,crow=0;capacity=1;}
         fprintf(fp, "%d %d %d %d %d %d %d %f %f %d %d", vert, value, kind, t, crow, capacity, cost, coordinate_x, coordinate_y, reservable, penalty);
         fprintf(fp, "\n");
     }

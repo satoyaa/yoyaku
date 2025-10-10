@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <string.h>
 #include "extern.h"
+
 
 void crossover_pmx(){
     int temp1[MAX_SPOTS];
     int temp2[MAX_SPOTS];
+    Reserve temp_reserve1[MAX_SPOTS];
+    Reserve temp_reserve2[MAX_SPOTS];
     int start = rand()%MAX_SPOTS;
     int end = rand()%MAX_SPOTS;
-    Reserve temp_reserve1[1][MAX_SPOTS];
-    Reserve temp_reserve2[1][MAX_SPOTS];
     if(end<start){
         int temp = end;
         end = start;
@@ -23,18 +23,14 @@ void crossover_pmx(){
         for(int j=0;j<MAX_SPOTS;j++){
             temp1[j]=-1;
             temp2[j]=-1;
-            temp_reserve1[0][j].spot=-1;
-            temp_reserve1[0][j].time=-1;
-            temp_reserve2[0][j].spot=-1;
-            temp_reserve2[0][j].time=-1;
         }
         for(int j=start;j<end;j++){
             temp1[j]=genes[i+1][j];//2つ目(親２)の遺伝子で一つ目(親１)を置き換え
             temp2[j]=genes[i][j];//1つ目の遺伝子で2つ目を置き換え
-            temp_reserve1[0][j].spot = genes_reserves[i+1][j].spot;
-            temp_reserve2[0][j].spot = genes_reserves[i][j].spot;
-            temp_reserve1[0][j].time = genes_reserves[i+1][j].time;
-            temp_reserve2[0][j].time = genes_reserves[i][j].time;
+            temp_reserve1[j].spot = genes_reserves[i+1][j].spot;
+            temp_reserve2[j].spot = genes_reserves[i][j].spot;
+            temp_reserve1[j].time = genes_reserves[i+1][j].time;
+            temp_reserve2[j].time = genes_reserves[i][j].time;
         }
         int gene1;
         int gene2;
@@ -73,13 +69,13 @@ void crossover_pmx(){
                 //ここまでの処理でgene1は範囲内にないことが確認済み
                 if(gene1 == genes[i][k]){
                     temp1[k]=gene2;
-                    temp_reserve1[0][k].spot = temp_reserve2[0][j2].spot;
-                    temp_reserve1[0][k].time = temp_reserve2[0][j2].time;
+                    temp_reserve1[k].spot=temp_reserve2[j2].spot;
+                    temp_reserve1[k].time=temp_reserve2[j2].time;
                 }
                 if(gene2 == genes[i+1][k]){
                     temp2[k]=gene1;
-                    temp_reserve2[0][k].spot = temp_reserve1[0][j1].spot;
-                    temp_reserve2[0][k].time = temp_reserve1[0][j1].time;
+                    temp_reserve2[k].spot=temp_reserve1[j1].spot;
+                    temp_reserve2[k].time=temp_reserve1[j1].time;
                 }
             }
             if (j1 < end){j1++;}if(j2 < end){j2++;}
@@ -91,22 +87,37 @@ void crossover_pmx(){
         for (int j = 0; j < MAX_SPOTS; j++) {
             if (temp1[j] == -1) {
                 temp1[j] = genes[i][j];
-                temp_reserve1[0][j].spot = genes_reserves[i][j].spot;
-                temp_reserve1[0][j].time = genes_reserves[i][j].time;
+                temp_reserve1[j].spot = genes_reserves[i][j].spot;
+                temp_reserve1[j].time = genes_reserves[i][j].time;
             }
             if (temp2[j] == -1) {
                 temp2[j] = genes[i+1][j];
-                temp_reserve2[0][j].spot = genes_reserves[i+1][j].spot;
-                temp_reserve2[0][j].time = genes_reserves[i+1][j].time;
+                temp_reserve2[j].spot = genes_reserves[i+1][j].spot;
+                temp_reserve2[j].time = genes_reserves[i+1][j].time;
             }
         }   
+
+        //予約に整合性を付ける
+
+        for (int j = 0; j < MAX_SPOTS; j++)
+        {
+            int reserve_spot = genes_reserves[i][j].spot;
+            if(reserve_spot < j){genes_reserves[i][reserve_spot].spot=j;genes_reserves[i][j].spot=-1;} 
+            reserve_spot = genes_reserves[i+1][j].spot;
+            if(reserve_spot < j){genes_reserves[i+1][reserve_spot].spot=j;genes_reserves[i+1][j]=-1;}            
+        }
+        
+
         //tempをgeneに置き換えて終了
         for (int j = 0; j < MAX_SPOTS; j++) {
-            if(1){genes[i][j] = temp1[j];}//エリート保存
+            genes[i][j] = temp1[j];
             genes[i+1][j] = temp2[j];
-            if(1){genes_reserves[i][j].spot = temp_reserve1[0][j].spot;genes_reserves[i][j].time = temp_reserve1[0][j].time;}//エリート保存            
-            genes_reserves[i+1][j].spot = temp_reserve2[0][j].spot;genes_reserves[i+1][j].time = temp_reserve2[0][j].time;
-            //printf("%d %d %d %d\n",temp_reserve1[0][j].spot, temp_reserve1[0][j].time, temp_reserve2[0][j].spot,temp_reserve2[0][j].time);
-        }
+            genes_reserves[i][j].spot = temp_reserve1[j].spot;
+            genes_reserves[i+1][j].spot = temp_reserve2[j].spot;
+            genes_reserves[i][j].time = temp_reserve1[j].time;
+            genes_reserves[i+1][j].time = temp_reserve2[j].time;
+        }   
     }
+
+
 }
