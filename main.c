@@ -11,9 +11,9 @@ int times[POPULATION][MAX_SPOTS];
 Spot spots[MAX_SPOTS];
 double fitness[POPULATION];
 int queue_range[MAX_SPOTS];
-int save_maxroot[MAX_SPOTS];
-int save_minroot[MAX_SPOTS];
-int save_temproot[LOOPS][MAX_SPOTS];
+Save save_maxroot[MAX_SPOTS];
+Save save_minroot[MAX_SPOTS];
+Save save_temproot[LOOPS][MAX_SPOTS];
 int count_temproot[LOOPS];
 double crossover_rate = 0.5;
 double mutation_rate = 0.5;
@@ -25,16 +25,19 @@ int reserve_rate;
 int savemode;
 
 //ファイル書き込みプログラム
-void save_file(const char *filename, int *array, size_t size) {
+void save_file(const char *filename, Save *array, size_t size) {
     FILE *fp = fopen(filename, "w"); // 書き込みモードで開く
+    char line[256];
     if (fp == NULL) {
-        perror("ファイルを開けませんでした");
+        perror("I can't open the file\n");
         exit(EXIT_FAILURE);
     }
 
     for (size_t i = 0; i < size; i++) {
-        if(array[i]==-1){break;}
-        fprintf(fp, "%d\n", array[i]);  // 1行ずつ書き込み
+        if(array[i].vert==-1){break;}//ノード，x座標，y座標，出発予定時刻，予約有無，予約時刻
+        printf("%d %f %f %d %d %d\n",array[i].vert, spots[array[i].vert].coordinate_x, spots[array[i].vert].coordinate_y, array[i].time, array[i].reserve, array[i].reservetimes);
+        snprintf(line, sizeof(line), "%d %f %f %d %d %d\n",array[i].vert, spots[array[i].vert].coordinate_x, spots[array[i].vert].coordinate_y, array[i].time, array[i].reserve, array[i].reservetimes);
+        fprintf(fp, "%s", line);
     }
 }
 
@@ -43,7 +46,7 @@ void ga(){
     savemode = 0;
     srand((unsigned int)time(NULL));//実行毎に違うを出したい
     //printf("hello1\n");
-    initialize(0,29); //(start, goal)
+    initialize(0,MAX_SPOTS); //(start, goal)
     //printf("hello2\n");
     calc_fitness();
     //printf("hello3\n");
@@ -71,7 +74,7 @@ void ga(){
 
 int main(){
     //データの読込．
-    readdata("output30.txt");
+    readdata("o-saka.txt");
     //初期個体生成．
     /* initialize(0, MAX_SPOTS-1);
     for (int i = 0; i < POPULATION; i++)
@@ -107,7 +110,7 @@ int main(){
     int time[] = {60, 120, 180, 240};
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
-    for (int i = 0; i < 4; i++)
+    for (int i = 2; i < 3; i++)
     {
         reserve_rate = 1;
         TIMELIMIT = time[i];
@@ -126,8 +129,8 @@ int main(){
         double sum_min = 0;
         double sum_average = 0;
         double sum_time = 0;
-        int maxroot[MAX_SPOTS];
-        int minroot[MAX_SPOTS];
+        Save maxroot[MAX_SPOTS];
+        Save minroot[MAX_SPOTS];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
         int count = 10;
@@ -145,7 +148,10 @@ int main(){
                 best_max = max;
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
-                    maxroot[k] = save_maxroot[k];
+                    maxroot[k].vert = save_maxroot[k].vert;
+                    maxroot[k].time = save_maxroot[k].time;
+                    maxroot[k].reserve = save_maxroot[k].reserve;
+                    maxroot[k].reservetimes = save_maxroot[k].reservetimes;
                 }
                 
             }
@@ -154,7 +160,10 @@ int main(){
                 best_min = min;
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
-                    minroot[k] = save_minroot[k];
+                    minroot[k].vert = save_minroot[k].vert;
+                    minroot[k].time = save_minroot[k].time;
+                    minroot[k].reserve = save_minroot[k].reserve;
+                    minroot[k].reservetimes = save_minroot[k].reservetimes;
                 }
             }
             
@@ -190,7 +199,7 @@ int main(){
         
         //ここまで
         printf("most appeare root probabilty is %d\n",count_max);
-        printf("excuse: %f sec\n", sum_average/count);
+        //printf("excuse: %f sec\n", sum_average/count);
         snprintf(line, sizeof(line), "%d %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
         save_file(filenameA,maxroot,MAX_SPOTS);
@@ -198,8 +207,9 @@ int main(){
         save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
         save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
         save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
+        
     }
-    for (int i = 0; i < 4; i++)
+    for (int i = 2; i < 3; i++)
     {
         reserve_rate = 0;
         TIMELIMIT = time[i];
@@ -218,8 +228,8 @@ int main(){
         double sum_min = 0;
         double sum_average = 0;
         double sum_time = 0;
-        int maxroot[MAX_SPOTS];
-        int minroot[MAX_SPOTS];
+        Save maxroot[MAX_SPOTS];
+        Save minroot[MAX_SPOTS];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
         int count = 10;
@@ -237,7 +247,10 @@ int main(){
                 best_max = max;
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
-                    maxroot[k] = save_maxroot[k];
+                    maxroot[k].vert = save_maxroot[k].vert;
+                    maxroot[k].time = save_maxroot[k].time;
+                    maxroot[k].reserve = save_maxroot[k].reserve;
+                    maxroot[k].reservetimes = save_maxroot[k].reservetimes;
                 }
                 
             }
@@ -246,7 +259,10 @@ int main(){
                 best_min = min;
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
-                    minroot[k] = save_minroot[k];
+                    minroot[k].vert = save_minroot[k].vert;
+                    minroot[k].time = save_minroot[k].time;
+                    minroot[k].reserve = save_minroot[k].reserve;
+                    minroot[k].reservetimes = save_minroot[k].reservetimes;
                 }
             }
             
@@ -296,12 +312,6 @@ int main(){
     printf("bye\n");
     //解の保存．
     printf("min:%f max:%f\n", min, max);
-    printf("max root:");
-    save_file("max_test.txt",save_maxroot,MAX_SPOTS);
-    printf("\n");
-    printf("min root:");
-    save_file("min_test.txt",save_minroot,MAX_SPOTS);
-    printf("\n");
     
     return(0);
 }

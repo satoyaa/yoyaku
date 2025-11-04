@@ -26,10 +26,22 @@ int binomial_rand(int n, double p) {
     return x;
 }
 
+double deg2rad(double deg) {
+  return deg * M_PI / 180.0;
+}
+
 int calc_travel_time(int i, int j){
-    double dx = spots[i].coordinate_x - spots[j].coordinate_x;
-    double dy = spots[i].coordinate_y - spots[j].coordinate_y;
-    double dist = sqrt(dx*dx + dy*dy);
+    double x1 = spots[i].coordinate_x;
+    double x2 = spots[j].coordinate_x;
+    double y1 = spots[i].coordinate_y;
+    double y2 = spots[j].coordinate_y;
+    x1 = deg2rad(x1);
+    x2 = deg2rad(x2);
+    y1 = deg2rad(y1);
+    y2 = deg2rad(y2);
+    //double dx = spots[i].coordinate_x - spots[j].coordinate_x;
+    //double dy = spots[i].coordinate_y - spots[j].coordinate_y;
+    double dist = EARTH_RAD * acos(sin(y1) * sin(y2) + cos(y1) * cos(y2) * cos(x2 - x1));
     int t = (int)(dist / (SPEED*1000/60));  //<===============ワンちゃんダメかも
     return(t);
 }
@@ -86,14 +98,17 @@ void calc_fitness(){
         int sum = 0;
         int sum_duration = 0;  //デバッグ用
         int sum_satisdy = 0;   //デバッグ用
-        if (savemode)
+        if (savemode && i==0)
         {
             //確率計算用の配列を初期化
             for (int j = 0; j < LOOPS; j++)
             {
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
-                    save_temproot[j][k] = -1;
+                    save_temproot[j][k].vert = -1;
+                    save_temproot[j][k].time = 0;
+                    save_temproot[j][k].reserve = -1;
+                    save_temproot[j][k].reservetimes = 0;
                 } 
                 count_temproot[j] = 0;
             }
@@ -108,7 +123,7 @@ void calc_fitness(){
             int expect;
             float limit = INFINITY; //予約時間計算
             int reserve_spot = -1; //予約地点
-            int temp_root[MAX_SPOTS];
+            Save temp_root[MAX_SPOTS];
             int temp_index = 0; //temp_root用index
             //srand((unsigned int)time(NULL));
             //srand(0);
@@ -116,10 +131,16 @@ void calc_fitness(){
             for (int k = 0; k < MAX_SPOTS; k++)
             {
                 waiting_queue[k] = spots[k].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
-                temp_root[k] = -1;
+                temp_root[k].vert = -1;
+                temp_root[k].time = 0;
+                temp_root[k].reserve = -1;
+                temp_root[k].reservetimes = 0;
             }
             //スタートを入れる
-            temp_root[temp_index] = genes[i][0];
+            temp_root[temp_index].vert = genes[i][0];
+            temp_root[temp_index].time = times[i][0];
+            temp_root[temp_index].reserve = genes_reserves[i][0].spot;
+            temp_root[temp_index].reservetimes = genes_reserves[i][0].time;
             temp_index++;
             //待ち時間を30分だけシミュレーション
             calc_queue_range(30);
@@ -134,7 +155,10 @@ void calc_fitness(){
                     continue;
                 }
                 //printf("%d ", duration);
-                temp_root[temp_index] = genes[i][k];
+                temp_root[temp_index].vert = genes[i][k];
+                temp_root[temp_index].time = times[i][k];
+                temp_root[temp_index].reserve = genes_reserves[i][k].spot;
+                temp_root[temp_index].reservetimes = genes_reserves[i][k].time;
                 temp_index++;
                 int minutes = 0;
                 
@@ -143,6 +167,7 @@ void calc_fitness(){
                 //予約観光地では待ち時間0，予約時間まで待機．
                 if(k==reserve_spot){
                     if(duration <= limit){duration = limit;wait=0;} //早く着いたら待つ
+                    else{}
                     limit = INFINITY;
                 }
                 //待ち時間シミュレータ確認用
@@ -225,45 +250,60 @@ void calc_fitness(){
             //printf("hello1\n");
             //終了後ゴールまでの経路を入れる
             duration+=calc_travel_time(genes[i][pivot_node], genes[i][MAX_SPOTS-1]); 
-            temp_root[temp_index] = genes[i][MAX_SPOTS-1];
+            temp_root[temp_index].vert = genes[i][MAX_SPOTS-1];
+            temp_root[temp_index].time = times[i][MAX_SPOTS-1];
+            temp_root[temp_index].reserve = genes_reserves[i][MAX_SPOTS-1].spot;
+            temp_root[temp_index].reservetimes = genes_reserves[i][MAX_SPOTS-1].time;
             temp_index++;
             
             if (duration > TIMELIMIT)
             {
                 satisfy -= 100;
             }
-            //評価値が最低であればsaveを更新
-            //printf("hello2\n");
-            if (satisfy < min || i == 0 || savemode)
-            {
-                for (int k = 0; k < MAX_SPOTS; k++)
-                {
-                    save_minroot[k] = -1;
-                }
-                for (int k = 0; k < MAX_SPOTS; k++)
-                {
-                    save_minroot[k] = temp_root[k];
-                }
-                min = satisfy;
-            }
-            //評価値が最大であれば経路を保存
-            //printf("hello3\n");
-            if (max < satisfy || i == 0 || savemode)
-            {
-                for (int k = 0; k < MAX_SPOTS; k++)
-                {
-                    save_maxroot[k] = -1;
-                }
-                for (int k = 0; k < MAX_SPOTS; k++)
-                {
-                    save_maxroot[k] = temp_root[k];
-                }
-                max = satisfy;
-            }
-            //tempルートを保存し発生確率を計算
             
-            if (savemode)
+            if (savemode && i==0)
             {
+                //評価値が最低であればsaveを更新
+                //printf("hello2\n");
+                if (satisfy < min)
+                {
+                    for (int k = 0; k < MAX_SPOTS; k++)
+                    {
+                        save_minroot[k].vert = -1;
+                        save_minroot[k].time = 0;
+                        save_minroot[k].reserve = 0;
+                        save_minroot[k].reservetimes = -1;
+                    }
+                    for (int k = 0; k < MAX_SPOTS; k++)
+                    {
+                        save_minroot[k].vert = temp_root[k].vert;
+                        save_minroot[k].time = temp_root[k].time;
+                        save_minroot[k].reserve = temp_root[k].reserve;
+                        save_minroot[k].reservetimes = temp_root[k].reservetimes;
+                    }
+                    min = satisfy;
+                }
+                //評価値が最大であれば経路を保存
+                //printf("hello3\n");
+                if (max < satisfy)
+                {
+                    for (int k = 0; k < MAX_SPOTS; k++)
+                    {
+                        save_maxroot[k].vert = -1;
+                        save_maxroot[k].time = 0;
+                        save_maxroot[k].reserve = 0;
+                        save_maxroot[k].reservetimes = -1;
+                    }
+                    for (int k = 0; k < MAX_SPOTS; k++)
+                    {
+                        save_maxroot[k].vert = temp_root[k].vert;
+                        save_maxroot[k].time = temp_root[k].time;
+                        save_maxroot[k].reserve = temp_root[k].reserve;
+                        save_maxroot[k].reservetimes = temp_root[k].reservetimes;
+                    }
+                    max = satisfy;
+                }
+                //tempルートを保存し発生確率を計算
                 int index = -1;
                 int flag = 0;
                 //デバック用
@@ -272,7 +312,7 @@ void calc_fitness(){
                     printf("temproot:");
                     for (int k = 0; k < MAX_SPOTS; k++)
                     {
-                        printf("%d ", temp_root[k]);
+                        printf("%d ", temp_root[k].vert);
                     }
                     printf("\n");
                 }
@@ -281,11 +321,11 @@ void calc_fitness(){
                 for (int k = 0; k < LOOPS; k++)
                 {
                     //一致しない場合,-1をindexに
-                    if(save_temproot[k][0]==-1){index=k;break;}
+                    if(save_temproot[k][0].vert==-1){index=k;break;}
                     //一致判定
                     for (int l = 0; l < MAX_SPOTS; l++)
                     {
-                        if(save_temproot[k][l] != temp_root[l]){flag=0;break;}
+                        if(save_temproot[k][l].vert != temp_root[l].vert){flag=0;break;}
                         flag = 1;
                     }
                     //一致するなら終わり
@@ -295,8 +335,13 @@ void calc_fitness(){
                 //printf("root:");
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
-                    //printf("%d ",temp_root[k]);
-                    save_temproot[index][k] = temp_root[k];
+                    //printf("%d ",temp_root[k].vert);
+                    save_temproot[index][k].vert = temp_root[k].vert;
+                    save_temproot[index][k].time = temp_root[k].time;
+                    save_temproot[index][k].reserve = temp_root[k].reserve;
+                    save_temproot[index][k].reservetimes = temp_root[k].reservetimes;
+                    //printf("%d ",save_temproot[index][k].vert);
+                    
                 }
                 //printf("\n");
             }
