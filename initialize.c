@@ -4,88 +4,78 @@
 #include <math.h>
 #include "extern.h"
 
-int calc_duration(int i, int j){
-    double x1 = spots[i].coordinate_x;
-    double x2 = spots[j].coordinate_x;
-    double y1 = spots[i].coordinate_y;
-    double y2 = spots[j].coordinate_y;
-
-    double dx = (x1 - x2);
-    double dy = (y1 - y2);
-
-    double distance = sqrt(dx*dx + dy*dy);
-
-    double duration = distance/(SPEED*1000/60);
-    return(duration);
-}
 
 void initialize(int start, int goal){
-    
-    
     for (int i = 0; i < POPULATION; i++)
     {
-        // 主要ルート作成.
         int index = 0;
-        int next_node;
-        int selected_node[30];
-        double t;
-        for (int j = 0; j < 30; j++)
+        int n = 1;
+        for (int j = 0; j < MAX_SPOTS; j++){genes[i][j] = -1;genes_reserves[i][j].spot = -1;genes_reserves[i][j].time = -1;}
+        genes[i][0]=start;
+        
+        while (index < MAX_SPOTS )
         {
-            selected_node[j]=-1;
-        }
-        genes[i] = create_node(index, start, TIMELIMIT, 0);
-        selected_node[index] = start;
-        while (1)
-        {
-            t = 0;
-            next_node = rand()%MAX_NODES;
-            int flag = 0;
-            for (int j = 0; j < 30; j++)
+            if(index==start || index == goal){index++;continue;}
+            int r = rand()%(MAX_SPOTS-2)+1;
+            for (int j = 0; j < MAX_SPOTS; j++)
             {
-                if(selected_node[j]==next_node){flag=1;}
+                if(genes[i][r] == -1){break;}
+                r+=n;
+                if(r < 1){r = MAX_SPOTS-2;}
+                if(MAX_SPOTS-2 < r){r = 1;}
             }
-            if(flag){continue;}
-            Node* found = find_node(genes[i], index);
-            //printf("%d %d %d\n", found->value,next_node, goal);
-            t = found->elapsed + calc_duration(found->value, next_node) + spots[next_node].t + calc_duration(next_node, goal);
-            //printf("time is %f\n", t);
-            if (t > TIMELIMIT)
-            {
-                break;
-            }
-            if(index > MAX_NODES){break;}
-            add_child_search(genes[i], index, index+1, next_node, 0.5, found->elapsed + calc_duration(found->value, next_node) + spots[next_node].t);
+            genes[i][r]= index;
             index++;
+            n = n * (-1);
         }
-        Node* found = find_node(genes[i], index);
-        add_child_search(genes[i], index, index+1, goal, 0.5, found->elapsed + calc_duration(found->value, goal));
-        index++;
+        genes[i][MAX_SPOTS-1]=goal;   
+        // 予約確認ノードの導入
 
-        //分岐を作成．
-        int r = rand()%index;
-        found = find_node(genes[i], r);
-        add_child_search(genes[i], r, index+1, next_node, 0.5, found->elapsed + calc_duration(found->value, next_node) + spots[next_node].t);
-        index++;
-        while (1)
+        for (int j = 0; j < MAX_SPOTS; j++)
         {
-            t = 0;
-            next_node = rand()%MAX_NODES;
-            int flag = 0;
-            for (int j = 0; j < 30; j++)
-            {
-                if(selected_node[j]==next_node){flag=1;}
-            }
-            if(flag){continue;}
-            Node* found = find_node(genes[i], index);
-            //printf("%d %d %d\n", found->value,next_node, goal);
-            t = found->elapsed + calc_duration(found->value, next_node) + spots[next_node].t + calc_duration(next_node, goal);
-            //printf("time is %f\n", t);
-            if (t > TIMELIMIT)
-            {
-                break;
-            }
-            add_child_search(genes[i], index, index+1, next_node, 0.5, found->elapsed + calc_duration(found->value, next_node) + spots[next_node].t);
-            index++;
+            genes_reserves[i][j].spot = 0;
+            genes_reserves[i][j].time = 0;
         }
-    }
+        
+        for (int j = 0; j < MAX_SPOTS; j++)
+        {
+            if(1-reserve_rate){break;}
+            int r = rand() % 2;
+            if (r==1 && spots[genes[i][j]].reservable==1)
+            {
+                genes_reserves[i][j].spot = 1;
+                genes_reserves[i][j].time = rand() % TIMELIMIT;
+            }
+        }
+        
+        /* index = 0;
+        while (index < MAX_RESERVES )
+        {
+            double r = (double)rand() / RAND_MAX;
+            if(reserve_rate<r){index++;continue;}
+            int reserving_spot = rand() % MAX_SPOTS-1; //ゴールノードだけは含まない
+            for (int j = 0; j < MAX_SPOTS; j++)
+            {
+                if(genes_reserves[i][reserving_spot].spot == -1){break;}
+                reserving_spot+=n;
+                if(reserving_spot < 0){r = MAX_SPOTS-2;}
+                if(MAX_SPOTS-2 < r){r = 1;}
+            }
+            int reserved_spot = rand() % (MAX_SPOTS-reserving_spot-1) + reserving_spot+1; //予約ノード～MAX_SPOTSの間でランダム生成したい
+            genes_reserves[i][reserving_spot].spot = reserved_spot;
+            int t = rand()%(TIMELIMIT);
+            genes_reserves[i][reserving_spot].time = t;
+            index++;
+            n = n * (-1);
+        } */
+        //出発時間制限の導入
+        // とりあえず，等分
+        for (int j = 0; j < MAX_SPOTS; j++)
+        {
+            times[i][j] = (int)(j*TIMELIMIT/MAX_SPOTS);
+        }
+        
+    }    
+
+    
 }

@@ -1,24 +1,41 @@
+# 使用するCコンパイラ
 CC = gcc
-CFLAGS = -Wall -g
-TARGET = hello
+# コンパイルオプション（例: 警告をすべて表示）
+CFLAGS = -Wall
 
-# コンパイル対象のソースファイルのみを記述
-SRCS = hello.c goodbye.c
-# ソースファイルからオブジェクトファイル名リストを自動生成
-OBJS = $(SRCS:.c=.o)
+# コマンドAで生成・実行するプログラム名
+TARGET_A = runGA
+# コマンドAに必要なソースファイル
+SRCS_A = fitness.c initialize.c main.c readdata.c
 
-# デフォルトのターゲット (makeとだけ打った時に実行される)
-all: $(TARGET)
+# コマンドBで生成・実行するプログラム名
+TARGET_B = runMakeData
+# コマンドBに必要なソースファイル
+SRCS_B = makedata.c
 
-# 実行ファイル(TARGET)は、オブジェクトファイル(OBJS)に依存する
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+# --- ルールの記述 ---
 
-# 全てのオブジェクトファイルは、extern.hに依存する
-$(OBJS): extern.h
+# `make A`と入力した時のルール
+RunGA: $(TARGET_A)
+	@echo "--- プログラムAを実行します ---"
+	./$(TARGET_A)
 
-# cleanルールを追加しておくと便利
+# `make B`と入力した時のルール
+MakeData: $(TARGET_B)
+	@echo "--- プログラムBを実行します ---"
+	./$(TARGET_B)
+
+# プログラムA (run_a) をソースファイルから生成するためのルール
+$(TARGET_A): $(SRCS_A)
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# プログラムB (run_b) をソースファイルから生成するためのルール
+$(TARGET_B): $(SRCS_B)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# `make clean` で生成されたファイルを削除するルール
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET_A) $(TARGET_B)
 
-.PHONY: all clean
+# ターゲット名がファイル名と重複しても正しく動作させるおまじない
+.PHONY: A B clean

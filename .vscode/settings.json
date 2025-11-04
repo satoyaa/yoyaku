@@ -1,6 +1,8 @@
 {
     "files.associations": {
-        "extern.h": "c"
+        "extern.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
