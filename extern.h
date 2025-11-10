@@ -3,7 +3,7 @@
 
 #define MAX_ITERATION 50
 #define POPULATION 30
-#define MAX_SPOTS 28
+#define MAX_SPOTS 51
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
