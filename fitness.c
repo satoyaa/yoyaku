@@ -48,6 +48,10 @@ int calc_travel_time(int i, int j){
 
 
 void calc_queue_range(int minutes){
+    if (minutes > 500) //さいだい５じかんでやるため
+    {
+        minutes = 500;
+    }
     for (int k = 0; k < MAX_SPOTS; k++) {
         // パラメータの計算
         double lambda_per_minute = spots[k].crow / 60.0; // 1分あたりの平均到着率 (λ)
@@ -60,6 +64,12 @@ void calc_queue_range(int minutes){
         // 初期化（シミュレーション開始前に外部で行われるべきだが、ここではループ開始時に初期化）
         // waiting_queue[k] と busy_servers[k] は外部で初期化されていると仮定
         // 例: waiting_queue[k] = 0; busy_servers[k] = 0;
+        //予約必須観光地の例外処理
+        if (spots[k].crow == 100000)
+        {
+            waiting_queue[k] = 100000;
+            continue;
+        }        
 
         for (int t = 0; t < minutes; t++) {
             
@@ -190,6 +200,7 @@ void calc_fitness(){
                 duration+=minutes;
                 //待ち時間シミュレーション（出発時）予約確認用
                 calc_queue_range(minutes);
+                //printf("\ncalc_queue_range1[%d][%d][%d] done",i,j,k);
                 minutes = 0; //シミュレーションが終わったので時間リセット
                 //予約処理
                 for (int l = k+1; l < MAX_SPOTS; l++)
@@ -205,14 +216,16 @@ void calc_fitness(){
 
                 //ここで次の観光地を回っても予約観光地に間に合うかを予想
                 expect = duration + calc_travel_time(genes[i][pivot_node], genes[i][next_node]) + spots[genes[i][next_node]].t + calc_travel_time(genes[i][next_node], genes[i][MAX_SPOTS-1]);
-
+                //printf("\ncalc_travel_time1[%d][%d][%d] done",i,j,k);
                 //次の観光地を回っても予約に間に合うか判定
                 //間に合わない場合の処理
                 //観光地の巡回を諦めて予約地点に向かう
                 if(expect > limit && duration + calc_travel_time(genes[i][pivot_node], genes[i][reserve_spot]) < limit){ 
-                    minutes += calc_travel_time(genes[i][pivot_node], genes[i][reserve_spot]); 
+                    minutes += calc_travel_time(genes[i][pivot_node], genes[i][reserve_spot]);
+                    //printf("\ncalc_travel_time2[%d][%d][%d] done",i,j,k); 
                     //現在時刻の待ち時間を算出（到着時）
                     calc_queue_range(minutes);
+                    //printf("\ncalc_queue_range2[%d][%d][%d] done",i,j,k);
                     duration += minutes;
                     satisfy += spots[genes[i][reserve_spot]].value;
                     pivot_node = reserve_spot;
@@ -229,7 +242,7 @@ void calc_fitness(){
                 //ここで次の観光地を回ってもゴールに間に合うかを予想．
                 // 出発時間+移動時間+次観光地の所要時間+ゴールまでの移動時間の予想 
                 expect = duration + calc_travel_time(genes[i][pivot_node], genes[i][next_node]) + spots[genes[i][next_node]].t + calc_travel_time(genes[i][next_node], genes[i][MAX_SPOTS-1]);
-
+                //printf("\ncalc_travel_time3[%d][%d][%d] done",i,j,k);
                 //出発前にゴールに間に合うか判定
                 if(expect > TIMELIMIT){
                     break;
@@ -237,6 +250,7 @@ void calc_fitness(){
 
                 //移動時間
                 minutes += calc_travel_time(genes[i][pivot_node], genes[i][next_node]); 
+                //printf("\ncalc_travel_time4[%d][%d][%d] done",i,j,k);
                 
                
                 //現在時刻の待ち時間を算出（到着時）
@@ -245,9 +259,11 @@ void calc_fitness(){
                 satisfy += spots[genes[i][pivot_node]].value;
                 pivot_node = next_node;
             }
+
+
             //printf("\n");
 
-            //printf("hello1\n");
+           
             //終了後ゴールまでの経路を入れる
             duration+=calc_travel_time(genes[i][pivot_node], genes[i][MAX_SPOTS-1]); 
             temp_root[temp_index].vert = genes[i][MAX_SPOTS-1];
