@@ -3,7 +3,8 @@
 
 #define MAX_ITERATION 50
 #define POPULATION 30
-#define MAX_SPOTS 51
+#define MAX_SPOTS 51 //観光地数
+#define MAX_NODES 50 //遺伝子長の最大値
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
@@ -11,6 +12,7 @@
 //#define reserve_rate 1
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)
+#define BRANCHES 5 //分岐の数
 
 
 typedef struct {
@@ -51,10 +53,17 @@ typedef struct Save
     int reservetimes; //予約時刻
 } Save;
 
+typedef struct Gene
+{
+    int vert; //ノードの値
+    int time; //出発予定時刻
+    int dest; //行先(destination)
+} Gene; 
+
+
 extern Spot spots[MAX_SPOTS];  // 構造体配列の外部宣言
-extern int genes[POPULATION][MAX_SPOTS];
+extern Gene genes[POPULATION][MAX_SPOTS];
 extern Reserve genes_reserves[POPULATION][MAX_SPOTS];
-extern int genes_timelimit[POPULATION][MAX_SPOTS];
 extern int times[POPULATION][MAX_SPOTS];
 extern int queue_range[MAX_SPOTS];
 extern double fitness[POPULATION];

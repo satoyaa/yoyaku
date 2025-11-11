@@ -4,9 +4,8 @@
 #include <math.h>
 #include "extern.h"
 
-int genes[POPULATION][MAX_SPOTS];
 Reserve genes_reserves[POPULATION][MAX_SPOTS];
-int genes_timelimit[POPULATION][MAX_SPOTS];
+Gene genes[POPULATION][MAX_SPOTS];
 int times[POPULATION][MAX_SPOTS];
 Spot spots[MAX_SPOTS];
 double fitness[POPULATION];
@@ -42,76 +41,73 @@ void save_file(const char *filename, Save *array, size_t size) {
 }
 
 
+/*
 void ga(){
     savemode = 0;
     srand((unsigned int)time(NULL));//実行毎に違うを出したい
     srand(0);//実行毎に違うを出したい
-    initialize(0,MAX_SPOTS); //(start, goal)
+    initialize(0,MAX_SPOTS-1); //(start, goal)
     printf("hello2\n");
-    calc_fitness();
+    //calc_fitness();
     printf("hello3\n");
     for (int i = 0; i < MAX_ITERATION; i++)
     {
         printf("iteration:%d ",i);
         //選択
-        selection_tournament();
+        //selection_tournament();
         printf("selection done, ");
         //交叉
-        crossover_pmx();
+        //crossover_pmx();
         printf("crossover done, ");
         //突然変異
-        mutation_swap();
+        //mutation_swap();
         printf("mutation done, ");
         //評価値計算
-        calc_fitness();
+        //calc_fitness();
         printf("calculate fitness done.\n");
     }
     printf("\n");
-    selection_tournament();
+    //selection_tournament();
     min=INFINITY;
     max=-INFINITY;
     savemode = 1;
-    calc_fitness();
+    //calc_fitness();
     best = fitness[0];
     printf("best:%f\n",best);
     
     
-}
+}*/
 
 int main(){
     //データの読込．
     readdata("o-sakaFoods.txt");
     //初期個体生成．
-    /* initialize(0, MAX_SPOTS-1);
+    TIMELIMIT = 120;
+    initialize(0, MAX_SPOTS-1);
     for (int i = 0; i < POPULATION; i++)
     {
         printf("genes[%d]:",i);
-        for (int j = 0; j < MAX_SPOTS; j++)
+        for (int j = 0; j < MAX_NODES; j++)
         {
-            printf("%d ", genes[i][j]);
-        }
-        printf("\n");
-        printf("reserves[%d]:",i);
-        for (int j = 0; j < MAX_SPOTS; j++)
-        {
-            printf("%d ", genes_reserves[i][j]);
+            printf("%d ", genes[i][j].vert);
         }
         printf("\n");
         
-    } */
+    } 
     
     //評価値計算．
-    printf("hello\n");
+    //printf("hello\n");
     clock_t time1, time2;
     time1 = clock();   
     //ga();
     //serchAll(int start)
+    calc_fitness();
     time2 = clock();
     for (int i = 0; i < 3; i++)
     {
         printf("fitness is %f\n", fitness[i]);
     }
-
+    /*
     //自動実験プログラム
     int time[] = {60, 120, 180, 240};
     const char* filename = "root/Result.txt";
@@ -319,6 +315,6 @@ int main(){
     printf("bye\n");
     //解の保存．
     printf("min:%f max:%f\n", min, max);
-    
+    */
     return(0);
 }

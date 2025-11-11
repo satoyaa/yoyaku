@@ -10,25 +10,33 @@ void initialize(int start, int goal){
     {
         int index = 0;
         int n = 1;
-        for (int j = 0; j < MAX_SPOTS; j++){genes[i][j] = -1;genes_reserves[i][j].spot = -1;genes_reserves[i][j].time = -1;}
-        genes[i][0]=start;
+        for (int j = 0; j < MAX_SPOTS; j++){genes[i][j].vert = -1; genes[i][j].time = 100000; genes[i][j].dest = -1;genes_reserves[i][j].spot = -1;genes_reserves[i][j].time = -1;}
+        genes[i][0].vert=start;genes[i][0].dest=goal;
+        int end = rand()%(MAX_NODES-1); //ゴール地点とスタート地点以外        
         
-        while (index < MAX_SPOTS )
+        
+        for (int j = 1; j < end + 1; j++) //観光地を作成
         {
-            if(index==start || index == goal){index++;continue;}
-            int r = rand()%(MAX_SPOTS-2)+1;
-            for (int j = 0; j < MAX_SPOTS; j++)
-            {
-                if(genes[i][r] == -1){break;}
-                r+=n;
-                if(r < 1){r = MAX_SPOTS-2;}
-                if(MAX_SPOTS-2 < r){r = 1;}
-            }
-            genes[i][r]= index;
-            index++;
-            n = n * (-1);
+            int spot = rand()%MAX_SPOTS;
+            while ((spot == start) && (spot == goal)){spot = rand()%MAX_SPOTS;} //スタートとゴール以外の観光地をランダムに選択
+            genes[i][j].vert = spot;
         }
-        genes[i][MAX_SPOTS-1]=goal;   
+        
+        int branches = BRANCHES;
+        if (branches > end){branches = end;}
+        
+        //ブランチの作成
+        for (int j = 0; j < branches; j++)
+        {
+            int spot = rand() % (end+1); //スタート地点からゴールの直前までの中から観光地を選択
+            int dest = rand() % (end-spot+1) + spot; // 選択した観光地より後ろの観光地を選択
+            int time = rand() % TIMELIMIT; //出発時刻を選択
+            printf("%d %d %d %d\n", end, spot, dest, time);
+            genes[i][dest].dest = dest;
+            genes[i][dest].time = time;
+        }
+        
+        genes[i][end+1].vert = goal;   
         // 予約確認ノードの導入
 
         for (int j = 0; j < MAX_SPOTS; j++)
@@ -41,7 +49,7 @@ void initialize(int start, int goal){
         {
             if(1-reserve_rate){break;}
             int r = rand() % 2;
-            if (r==1 && spots[genes[i][j]].reservable==1)
+            if (r==1 && spots[genes[i][j].vert].reservable==1)
             {
                 genes_reserves[i][j].spot = 1;
                 genes_reserves[i][j].time = rand() % TIMELIMIT;
@@ -70,12 +78,5 @@ void initialize(int start, int goal){
         } */
         //出発時間制限の導入
         // とりあえず，等分
-        for (int j = 0; j < MAX_SPOTS; j++)
-        {
-            times[i][j] = (int)(j*TIMELIMIT/MAX_SPOTS);
-        }
-        
     }    
-
-    
 }
