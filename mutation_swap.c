@@ -11,23 +11,28 @@ void mutation_swap(){
         {
             continue;
         }
-        int start = rand()%(MAX_SPOTS-2)+1;
-        int goal = rand()%(MAX_SPOTS-2)+1;
+        //遺伝子長を計算
+        int length = 0;
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            if(genes[i][j].vert==-1){break;}
+            length+=1;
+        }
+        if (length <= 2)
+        {
+            continue;
+        }
+        int start = rand()%(length-2)+1;
+        int goal = rand()%(length-2)+1;
         if(goal<start){int t=goal;goal=start;start=t;}
         int temp;
+        printf("%d %d %d\n",length, goal, start);
         for (int j = 0; j < (goal-start)/2; j++)
         {
             //観光地の入れ替え
-            temp = genes[i][start+j];
-            genes[i][start+j] = genes[i][goal-j];
-            genes[i][goal-j] = temp;
-            //tempにいちいち構造体を持たせるのがめんどくさい
-            temp = genes_reserves[i][start+j].spot;
-            genes_reserves[i][start+j].spot = genes_reserves[i][goal].spot;
-            genes_reserves[i][goal-1].spot = temp;
-            temp = genes_reserves[i][start+j].time;
-            genes_reserves[i][start+j].time = genes_reserves[i][goal].time;
-            genes_reserves[i][goal-1].time = temp;
+            temp = genes[i][start+j].vert;
+            genes[i][start+j].vert = genes[i][goal-j].vert;
+            genes[i][goal-j].vert = temp;
         }
         /* //予約の整合性を修正する．
         for (int j = 0; j < MAX_SPOTS; j++)

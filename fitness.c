@@ -42,16 +42,12 @@ int calc_travel_time(int i, int j){
     //double dx = spots[i].coordinate_x - spots[j].coordinate_x;
     //double dy = spots[i].coordinate_y - spots[j].coordinate_y;
     double dist = EARTH_RAD * acos(sin(y1) * sin(y2) + cos(y1) * cos(y2) * cos(x2 - x1));
-    int t = (int)(dist / (SPEED*1000/60));  //<===============ワンちゃんダメかも
+    int t = (int)(dist *60 / SPEED);  //<===============ワンちゃんダメかも
     return(t);
 }
 
 
-void calc_queue_range(int minutes){
-    if (minutes > 500) //さいだい５じかんでやるため
-    {
-        minutes = 500;
-    }
+void calc_queue_range(){
     for (int k = 0; k < MAX_SPOTS; k++) {
         // パラメータの計算
         double lambda_per_minute = spots[k].crow / 60.0; // 1分あたりの平均到着率 (λ)
@@ -64,44 +60,33 @@ void calc_queue_range(int minutes){
         // 初期化（シミュレーション開始前に外部で行われるべきだが、ここではループ開始時に初期化）
         // waiting_queue[k] と busy_servers[k] は外部で初期化されていると仮定
         // 例: waiting_queue[k] = 0; busy_servers[k] = 0;
-        //予約必須観光地の例外処理
-        if (spots[k].crow == 100000)
-        {
-            waiting_queue[k] = 100000;
-            continue;
-        }        
 
-        for (int t = 0; t < minutes; t++) {
             
-            // 1. サービス完了（システムからの退場）
-            // サービス中の人数から、完了した人数を二項分布で決定
-            int completions = binomial_rand(busy_servers[k], p_complete);
-            // 完了した人数分、サービス中から減らす
-            busy_servers[k] -= completions;
+        // 1. サービス完了（システムからの退場）
+        // サービス中の人数から、完了した人数を二項分布で決定
+        int completions = binomial_rand(busy_servers[k], p_complete);
+        // 完了した人数分、サービス中から減らす
+        busy_servers[k] -= completions;
 
-            // 2. 待ちのサービス開始（待ち行列からサービス中へ移動）
-            int free_servers = servers - busy_servers[k];
-            
-            // 待ち人数と空き窓口の数の少ない方を、サービス開始人数とする
-            int to_start = (waiting_queue[k] < free_servers) ? waiting_queue[k] : free_servers;
-            
-            // サービス中の人数を増やし、待ち行列の人数を減らす
-            busy_servers[k] += to_start;
-            waiting_queue[k] -= to_start;
+        // 2. 待ちのサービス開始（待ち行列からサービス中へ移動）
+        int free_servers = servers - busy_servers[k];
+        
+        // 待ち人数と空き窓口の数の少ない方を、サービス開始人数とする
+        int to_start = (waiting_queue[k] < free_servers) ? waiting_queue[k] : free_servers;
+        
+        // サービス中の人数を増やし、待ち行列の人数を減らす
+        busy_servers[k] += to_start;
+        waiting_queue[k] -= to_start;
 
-            // 3. 到着（待ち行列への加算）
-            // 1分間に到着する人数をポアソン乱数で決定
-            int arrivals = poisson_rand(lambda_per_minute);
-            // 到着した人数は全て、待ち行列に追加される
-            waiting_queue[k] += arrivals;
-
-            // ★ シミュレーション結果の記録（例えば、毎分の waiting_queue[k] を保存など）
-        }
+        // 3. 到着（待ち行列への加算）
+        // 1分間に到着する人数をポアソン乱数で決定
+        int arrivals = poisson_rand(lambda_per_minute);
+        // 到着した人数は全て、待ち行列に追加される
+        waiting_queue[k] += arrivals;
     }
 }
 
 void calc_fitness(){
-    //printf("hello5\n");
     for (int i = 0; i < POPULATION; i++)
     {
         //初期化.
@@ -123,22 +108,36 @@ void calc_fitness(){
                 count_temproot[j] = 0;
             }
         }
-        
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            printf("%d ", genes[i][j].vert);
+            if(genes[i][j].vert==-1){break;}
+        }
+        printf("\n");
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            printf("%d ", genes[i][j].dest);
+        }
+        printf("\n");
         for (int j = 0; j < LOOPS; j++)
         {
             int duration = 0; //時間計算用
             int satisfy = 0; //満足度計算
-            int next_node;
-            int pivot_node = genes[i][0];
+            int next_index;
+            int pivot_index = genes[i][0].vert;
+            int dest_node = MAX_NODES-1;
+            int temp_index = 0;
             int expect;
-            float limit = INFINITY; //予約時間計算
-            int reserve_spot = -1; //予約地点
-            Save temp_root[MAX_SPOTS];
-            int temp_index = 0; //temp_root用index
+            Save temp_root[MAX_NODES];
+            int use_reserve[MAX_SPOTS];
+            for (int k = 0; k < MAX_SPOTS; k++)
+            {
+                use_reserve[k] = genes_reserves[i][k].spot;
+            }
             //srand((unsigned int)time(NULL));
             //srand(0);
             //printf("rand:%d\n",rand());
-            for (int k = 0; k < MAX_SPOTS; k++)
+            for (int k = 0; k < MAX_NODES; k++)
             {
                 waiting_queue[k] = spots[k].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
                 temp_root[k].vert = -1;
@@ -146,40 +145,41 @@ void calc_fitness(){
                 temp_root[k].reserve = -1;
                 temp_root[k].reservetimes = 0;
             }
-            //スタートを入れる
-            temp_root[temp_index].vert = genes[i][0];
-            temp_root[temp_index].time = times[i][0];
-            temp_root[temp_index].reserve = genes_reserves[i][0].spot;
-            temp_root[temp_index].reservetimes = genes_reserves[i][0].time;
             temp_index++;
             //待ち時間を30分だけシミュレーション
-            calc_queue_range(30);
+            calc_queue_range();
             //評価値計算のメイン
-            for (int k = 1; k < MAX_SPOTS-1; k++)
+            for (int k = 1; k < MAX_NODES-1; k++)
             {   
-                int next_node = k;
-                //printf("k:%d pivot:%d next:%d sat:%d dur:%d reserve:%d\n", k, genes[i][pivot_node], genes[i][next_node], satisfy, duration, reserve_spot);
                 
-                if (times[i][next_node] < duration)
-                {
-                    continue;
-                }
+                //間違って範囲外にアクセスした場合の対応
+                if(genes[i][k].vert == -1){continue;}
+                //printf("k:%d pivot:%d next:%d sat:%d dur:%d reserve:%d\n", k, genes[i][pivot_index], genes[i][next_index], satisfy, duration, reserve_spot);
+                
+                
+
                 //printf("%d ", duration);
-                temp_root[temp_index].vert = genes[i][k];
-                temp_root[temp_index].time = times[i][k];
-                temp_root[temp_index].reserve = genes_reserves[i][k].spot;
-                temp_root[temp_index].reservetimes = genes_reserves[i][k].time;
+                temp_root[temp_index].vert = genes[i][pivot_index].vert;
+                temp_root[temp_index].time = genes[i][pivot_index].vert;
+                temp_root[temp_index].reserve = genes_reserves[i][pivot_index].spot;
+                temp_root[temp_index].reservetimes = genes_reserves[i][pivot_index].time;
                 temp_index++;
                 int minutes = 0;
                 
                 //待ち時間を計算
-                int wait = waiting_queue[genes[i][pivot_node]] * spots[genes[i][pivot_node]].t / (spots[genes[i][pivot_node]].capacity );
-                //予約観光地では待ち時間0，予約時間まで待機．
-                if(k==reserve_spot){
-                    if(duration <= limit){duration = limit;wait=0;} //早く着いたら待つ
-                    else{}
-                    limit = INFINITY;
+                int wait = waiting_queue[genes[i][pivot_index].vert] * spots[genes[i][pivot_index].vert].t / (spots[genes[i][pivot_index].vert].capacity );
+                //予約観光地では待ち時間0，早く着いた場合は予約時間まで待機．また，時間に間に合った場合は予約を使用，間に合わなかった場合はちょっとだけペナルティ
+                if(use_reserve[genes[i][pivot_index].vert]==1){
+                    if(duration <= genes_reserves[i][genes[i][pivot_index].vert].time){
+                        duration = genes_reserves[i][genes[i][pivot_index].vert].time;//早く着いたら待つ
+                        wait=0; //待ち時間は0
+                        use_reserve[genes[i][pivot_index].vert] = 0; //予約を満たす
+                    } 
+                    else{
+                        use_reserve[genes[i][pivot_index].vert] = 0.5; //ちょっとだけペナルティ
+                    }
                 }
+                
                 //待ち時間シミュレータ確認用
                 if(0){
                     printf("%dmin : ",duration);
@@ -194,87 +194,81 @@ void calc_fitness(){
                 
                 //店での所要時間＋待ち時間
                 minutes += wait;
-                minutes += spots[genes[i][pivot_node]].t;
+                minutes += spots[genes[i][pivot_index].vert].t;
                 //もし待ち時間+所要時間が制限時間をオーバーするならゴールに向かう
                 if(duration+minutes > TIMELIMIT){break;}
                 duration+=minutes;
-                //待ち時間シミュレーション（出発時）予約確認用
-                calc_queue_range(minutes);
+                //if(duration < 0 || (TIMELIMIT * 2) < duration){printf("wait1:%d\n",minutes);}
+                //if(duration < 0 || (TIMELIMIT * 2) < duration){printf("duration1:%d %d %d %d %d\n",i, pivot_index, k, genes[i][pivot_index].vert, genes[i][k].vert);}
+                //待ち時間シミュレーション（出発時）
+                calc_queue_range();
                 //printf("\ncalc_queue_range1[%d][%d][%d] done",i,j,k);
                 minutes = 0; //シミュレーションが終わったので時間リセット
-                //予約処理
-                for (int l = k+1; l < MAX_SPOTS; l++)
+
+                while (1)
                 {
-                    if (genes_reserves[i][l].spot == 1)
+                    //次の巡回地点を決定
+                    if (genes[i][k].dest != -1)
                     {
-                        reserve_spot = l;
-                        limit = genes_reserves[i][l].time;
-                        break;
+                        //現在時刻が出発時刻より早い場合は行先を目的地に更新
+                        if (duration < genes[i][k].time)
+                        {
+                            dest_node = genes[i][k].dest;
+                        }//現在時刻より出発時刻が遅い場合は巡回地点に行先を代入
+                        else{ 
+                            k = genes[i][k].dest;
+                        }
                     }
+                    //次の観光地が重複する場合読み飛ばす対応
+                    int flag = 0;
+                    for (int l = 0; l < MAX_NODES; l++)
+                    {
+                        if(temp_root[l].vert==-1){break;}
+                        if(genes[i][k].vert==temp_root[l].vert){flag=1;}
+                    }
+                    if(flag){k++;continue;}
+                    break;
                 }
                 
-
-                //ここで次の観光地を回っても予約観光地に間に合うかを予想
-                expect = duration + calc_travel_time(genes[i][pivot_node], genes[i][next_node]) + spots[genes[i][next_node]].t + calc_travel_time(genes[i][next_node], genes[i][MAX_SPOTS-1]);
-                //printf("\ncalc_travel_time1[%d][%d][%d] done",i,j,k);
-                //次の観光地を回っても予約に間に合うか判定
-                //間に合わない場合の処理
-                //観光地の巡回を諦めて予約地点に向かう
-                if(expect > limit && duration + calc_travel_time(genes[i][pivot_node], genes[i][reserve_spot]) < limit){ 
-                    minutes += calc_travel_time(genes[i][pivot_node], genes[i][reserve_spot]);
-                    //printf("\ncalc_travel_time2[%d][%d][%d] done",i,j,k); 
-                    //現在時刻の待ち時間を算出（到着時）
-                    calc_queue_range(minutes);
-                    //printf("\ncalc_queue_range2[%d][%d][%d] done",i,j,k);
-                    duration += minutes;
-                    satisfy += spots[genes[i][reserve_spot]].value;
-                    pivot_node = reserve_spot;
-                    k = reserve_spot;
-                    continue;
-                }else if (expect > limit) //予約破棄 悪いことなのでペナルティ
-                {
-                    reserve_spot = -1;
-                    limit = INFINITY;
-                    satisfy -= spots[genes[i][reserve_spot]].penalty;
-                }
+                next_index = k;
+                //次の観光地が目的地より先なら終了
+                if(next_index >= dest_node){break;}
                 
-
                 //ここで次の観光地を回ってもゴールに間に合うかを予想．
                 // 出発時間+移動時間+次観光地の所要時間+ゴールまでの移動時間の予想 
-                expect = duration + calc_travel_time(genes[i][pivot_node], genes[i][next_node]) + spots[genes[i][next_node]].t + calc_travel_time(genes[i][next_node], genes[i][MAX_SPOTS-1]);
+                expect = duration + calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert) + spots[genes[i][next_index].vert].t + calc_travel_time(genes[i][next_index].vert, MAX_SPOTS-1);
                 //printf("\ncalc_travel_time3[%d][%d][%d] done",i,j,k);
-                //出発前にゴールに間に合うか判定
+                //出発前にゴールに間に合うか判定 間に合わない場合は終了
                 if(expect > TIMELIMIT){
                     break;
                 }
-
                 //移動時間
-                minutes += calc_travel_time(genes[i][pivot_node], genes[i][next_node]); 
+                minutes += calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert); 
                 //printf("\ncalc_travel_time4[%d][%d][%d] done",i,j,k);
-                
-               
-                //現在時刻の待ち時間を算出（到着時）
-                calc_queue_range(minutes);
+
                 duration += minutes;
-                satisfy += spots[genes[i][pivot_node]].value;
-                pivot_node = next_node;
+                satisfy += spots[genes[i][pivot_index].vert].value;
+                pivot_index = next_index;
             }
-
-
-            //printf("\n");
-
            
             //終了後ゴールまでの経路を入れる
-            duration+=calc_travel_time(genes[i][pivot_node], genes[i][MAX_SPOTS-1]); 
-            temp_root[temp_index].vert = genes[i][MAX_SPOTS-1];
-            temp_root[temp_index].time = times[i][MAX_SPOTS-1];
+            duration+=calc_travel_time(genes[i][pivot_index].vert, MAX_SPOTS-1); 
+            temp_root[temp_index].vert = genes[i][MAX_SPOTS-1].vert;
+            temp_root[temp_index].time = genes[i][MAX_SPOTS-1].vert;
             temp_root[temp_index].reserve = genes_reserves[i][MAX_SPOTS-1].spot;
             temp_root[temp_index].reservetimes = genes_reserves[i][MAX_SPOTS-1].time;
             temp_index++;
             
+            //終了時刻に間に合わない場合はペナルティ
             if (duration > TIMELIMIT)
             {
                 satisfy -= 100;
+            }
+
+            //予約を使わなかった場合はペナルティ
+            for (int k = 0; k < MAX_SPOTS; k++)
+            {
+                satisfy -= (use_reserve[k] * 100);
             }
             
             if (savemode && i==0)

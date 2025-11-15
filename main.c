@@ -41,29 +41,27 @@ void save_file(const char *filename, Save *array, size_t size) {
 }
 
 
-/*
+
 void ga(){
     savemode = 0;
     srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    srand(0);//実行毎に違うを出したい
+    //srand(3);//実行毎に違うを出したい
     initialize(0,MAX_SPOTS-1); //(start, goal)
-    printf("hello2\n");
-    //calc_fitness();
-    printf("hello3\n");
+    calc_fitness();
     for (int i = 0; i < MAX_ITERATION; i++)
     {
         printf("iteration:%d ",i);
         //選択
-        //selection_tournament();
+        selection_tournament();
         printf("selection done, ");
         //交叉
         //crossover_pmx();
-        printf("crossover done, ");
+        //printf("crossover done, ");
         //突然変異
-        //mutation_swap();
+        mutation_swap();
         printf("mutation done, ");
         //評価値計算
-        //calc_fitness();
+        calc_fitness();
         printf("calculate fitness done.\n");
     }
     printf("\n");
@@ -76,7 +74,7 @@ void ga(){
     printf("best:%f\n",best);
     
     
-}*/
+}
 
 int main(){
     //データの読込．
@@ -84,7 +82,7 @@ int main(){
     //初期個体生成．
     TIMELIMIT = 120;
     initialize(0, MAX_SPOTS-1);
-    for (int i = 0; i < POPULATION; i++)
+    for (int i = 24; i < 25; i++)
     {
         printf("genes[%d]:",i);
         for (int j = 0; j < MAX_NODES; j++)
@@ -94,16 +92,36 @@ int main(){
         printf("\n");
         
     } 
+    for (int i = 24; i < 25; i++)
+    {
+        printf("genes[%d]:",i);
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            printf("%d ", genes[i][j].dest);
+        }
+        printf("\n");
+        
+    } 
+    for (int i = 24; i < 25; i++)
+    {
+        printf("genes[%d]:",i);
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            printf("%d ", genes[i][j].time);
+        }
+        printf("\n");
+        
+    } 
     
     //評価値計算．
     //printf("hello\n");
     clock_t time1, time2;
     time1 = clock();   
-    //ga();
+    ga();
     //serchAll(int start)
-    calc_fitness();
+    //calc_fitness();
     time2 = clock();
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < POPULATION; i++)
     {
         printf("fitness is %f\n", fitness[i]);
     }

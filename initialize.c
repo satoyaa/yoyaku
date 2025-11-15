@@ -18,7 +18,7 @@ void initialize(int start, int goal){
         for (int j = 1; j < end + 1; j++) //観光地を作成
         {
             int spot = rand()%MAX_SPOTS;
-            while ((spot == start) && (spot == goal)){spot = rand()%MAX_SPOTS;} //スタートとゴール以外の観光地をランダムに選択
+            while ((spot == start) || (spot == goal)){spot = rand()%MAX_SPOTS;} //スタートとゴール以外の観光地をランダムに選択
             genes[i][j].vert = spot;
         }
         
@@ -28,12 +28,12 @@ void initialize(int start, int goal){
         //ブランチの作成
         for (int j = 0; j < branches; j++)
         {
-            int spot = rand() % (end+1); //スタート地点からゴールの直前までの中から観光地を選択
-            int dest = rand() % (end-spot+1) + spot; // 選択した観光地より後ろの観光地を選択
+            int spot = rand() % (end); //スタート地点からゴールの直前までの中から観光地を選択
+            int dest = rand() % (end-spot) + spot + 1; // 選択した観光地より後ろの観光地を選択
             int time = rand() % TIMELIMIT; //出発時刻を選択
-            printf("%d %d %d %d\n", end, spot, dest, time);
-            genes[i][dest].dest = dest;
-            genes[i][dest].time = time;
+            //if(i==24){printf("%d %d %d %d\n", end, spot, dest, time);}
+            genes[i][spot].dest = dest;
+            genes[i][spot].time = time;
         }
         
         genes[i][end+1].vert = goal;   
