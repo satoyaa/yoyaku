@@ -22,11 +22,11 @@ void mutation_swap(){
         {
             continue;
         }
-        int start = rand()%(length-2)+1;
-        int goal = rand()%(length-2)+1;
+        int start = rand()%length;
+        int goal = rand()%length;
         if(goal<start){int t=goal;goal=start;start=t;}
         int temp;
-        printf("%d %d %d\n",length, goal, start);
+        //printf("%d %d %d\n",length, goal, start);
         for (int j = 0; j < (goal-start)/2; j++)
         {
             //観光地の入れ替え

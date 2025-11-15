@@ -79,11 +79,12 @@ extern int TIMELIMIT;
 extern int reserve_rate;
 extern int savemode;
 extern void crossover_pmx();
+extern void crossover_twopoint();
 extern void selection_tournament();
 extern void mutation_swap();
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
-extern void calc_fitness();
+extern void calc_fitness(int start, int goal);
 //extern void serchAll();
 
 

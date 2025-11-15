@@ -42,12 +42,12 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 
 
-void ga(){
+void ga(int start, int goal){
     savemode = 0;
-    srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    //srand(3);//実行毎に違うを出したい
-    initialize(0,MAX_SPOTS-1); //(start, goal)
-    calc_fitness();
+    //srand((unsigned int)time(NULL));//実行毎に違うを出したい
+    srand(3);//実行毎に違うを出したい
+    initialize(start, goal); //(start, goal)
+    calc_fitness(start, goal);
     for (int i = 0; i < MAX_ITERATION; i++)
     {
         printf("iteration:%d ",i);
@@ -56,12 +56,13 @@ void ga(){
         printf("selection done, ");
         //交叉
         //crossover_pmx();
-        //printf("crossover done, ");
+        crossover_twopoint();
+        printf("crossover done, ");
         //突然変異
         mutation_swap();
         printf("mutation done, ");
         //評価値計算
-        calc_fitness();
+        calc_fitness(start, goal);
         printf("calculate fitness done.\n");
     }
     printf("\n");
@@ -117,7 +118,7 @@ int main(){
     //printf("hello\n");
     clock_t time1, time2;
     time1 = clock();   
-    ga();
+    ga(0, MAX_SPOTS-1);
     //serchAll(int start)
     //calc_fitness();
     time2 = clock();

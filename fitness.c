@@ -86,7 +86,7 @@ void calc_queue_range(){
     }
 }
 
-void calc_fitness(){
+void calc_fitness(int start, int goal){
     for (int i = 0; i < POPULATION; i++)
     {
         //初期化.
@@ -108,6 +108,7 @@ void calc_fitness(){
                 count_temproot[j] = 0;
             }
         }
+        /*
         for (int j = 0; j < MAX_NODES; j++)
         {
             printf("%d ", genes[i][j].vert);
@@ -118,13 +119,13 @@ void calc_fitness(){
         {
             printf("%d ", genes[i][j].dest);
         }
-        printf("\n");
+        printf("\n");*/
         for (int j = 0; j < LOOPS; j++)
         {
             int duration = 0; //時間計算用
             int satisfy = 0; //満足度計算
             int next_index;
-            int pivot_index = genes[i][0].vert;
+            int pivot_index = start;
             int dest_node = MAX_NODES-1;
             int temp_index = 0;
             int expect;
@@ -236,7 +237,7 @@ void calc_fitness(){
                 
                 //ここで次の観光地を回ってもゴールに間に合うかを予想．
                 // 出発時間+移動時間+次観光地の所要時間+ゴールまでの移動時間の予想 
-                expect = duration + calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert) + spots[genes[i][next_index].vert].t + calc_travel_time(genes[i][next_index].vert, MAX_SPOTS-1);
+                expect = duration + calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert) + spots[genes[i][next_index].vert].t + calc_travel_time(genes[i][next_index].vert, goal);
                 //printf("\ncalc_travel_time3[%d][%d][%d] done",i,j,k);
                 //出発前にゴールに間に合うか判定 間に合わない場合は終了
                 if(expect > TIMELIMIT){
@@ -252,12 +253,7 @@ void calc_fitness(){
             }
            
             //終了後ゴールまでの経路を入れる
-            duration+=calc_travel_time(genes[i][pivot_index].vert, MAX_SPOTS-1); 
-            temp_root[temp_index].vert = genes[i][MAX_SPOTS-1].vert;
-            temp_root[temp_index].time = genes[i][MAX_SPOTS-1].vert;
-            temp_root[temp_index].reserve = genes_reserves[i][MAX_SPOTS-1].spot;
-            temp_root[temp_index].reservetimes = genes_reserves[i][MAX_SPOTS-1].time;
-            temp_index++;
+            duration+=calc_travel_time(genes[i][pivot_index].vert, goal);
             
             //終了時刻に間に合わない場合はペナルティ
             if (duration > TIMELIMIT)

@@ -10,12 +10,16 @@ void initialize(int start, int goal){
     {
         int index = 0;
         int n = 1;
-        for (int j = 0; j < MAX_SPOTS; j++){genes[i][j].vert = -1; genes[i][j].time = 100000; genes[i][j].dest = -1;genes_reserves[i][j].spot = -1;genes_reserves[i][j].time = -1;}
-        genes[i][0].vert=start;genes[i][0].dest=goal;
-        int end = rand()%(MAX_NODES-1); //ゴール地点とスタート地点以外        
+        for (int j = 0; j < MAX_NODES; j++){
+            genes[i][j].vert = -1; genes[i][j].time = 100000; genes[i][j].dest = -1;
+            if(j<MAX_SPOTS){
+                genes_reserves[i][j].spot = -1;genes_reserves[i][j].time = -1;
+            }
+        }
+        int end = rand()%(MAX_NODES-1)+1;     
         
         
-        for (int j = 1; j < end + 1; j++) //観光地を作成
+        for (int j = 0; j < end; j++) //観光地を作成
         {
             int spot = rand()%MAX_SPOTS;
             while ((spot == start) || (spot == goal)){spot = rand()%MAX_SPOTS;} //スタートとゴール以外の観光地をランダムに選択
@@ -28,16 +32,13 @@ void initialize(int start, int goal){
         //ブランチの作成
         for (int j = 0; j < branches; j++)
         {
-            int spot = rand() % (end); //スタート地点からゴールの直前までの中から観光地を選択
-            int dest = rand() % (end-spot) + spot + 1; // 選択した観光地より後ろの観光地を選択
+            int spot = rand() % end; //スタート地点からゴールの直前までの中から観光地を選択
+            int dest = rand() % (end-spot) + spot; // 選択した観光地より後ろの観光地を選択
             int time = rand() % TIMELIMIT; //出発時刻を選択
             //if(i==24){printf("%d %d %d %d\n", end, spot, dest, time);}
             genes[i][spot].dest = dest;
             genes[i][spot].time = time;
         }
-        
-        genes[i][end+1].vert = goal;   
-        // 予約確認ノードの導入
 
         for (int j = 0; j < MAX_SPOTS; j++)
         {
