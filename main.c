@@ -44,8 +44,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     savemode = 0;
-    //srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    srand(3);//実行毎に違うを出したい
+    srand((unsigned int)time(NULL));//実行毎に違うを出したい
+    //srand(3);//実行毎に違うを出したい
     initialize(start, goal); //(start, goal)
     calc_fitness(start, goal);
     for (int i = 0; i < MAX_ITERATION; i++)
@@ -79,40 +79,10 @@ void ga(int start, int goal){
 
 int main(){
     //データの読込．
-    readdata("o-sakaFoods.txt");
+    readdata("o-sakaFoodsX.txt");
     //初期個体生成．
     TIMELIMIT = 120;
     initialize(0, MAX_SPOTS-1);
-    for (int i = 24; i < 25; i++)
-    {
-        printf("genes[%d]:",i);
-        for (int j = 0; j < MAX_NODES; j++)
-        {
-            printf("%d ", genes[i][j].vert);
-        }
-        printf("\n");
-        
-    } 
-    for (int i = 24; i < 25; i++)
-    {
-        printf("genes[%d]:",i);
-        for (int j = 0; j < MAX_NODES; j++)
-        {
-            printf("%d ", genes[i][j].dest);
-        }
-        printf("\n");
-        
-    } 
-    for (int i = 24; i < 25; i++)
-    {
-        printf("genes[%d]:",i);
-        for (int j = 0; j < MAX_NODES; j++)
-        {
-            printf("%d ", genes[i][j].time);
-        }
-        printf("\n");
-        
-    } 
     
     //評価値計算．
     //printf("hello\n");
@@ -126,7 +96,6 @@ int main(){
     {
         printf("fitness is %f\n", fitness[i]);
     }
-    /*
     //自動実験プログラム
     int time[] = {60, 120, 180, 240};
     const char* filename = "root/Result.txt";
@@ -158,7 +127,7 @@ int main(){
         for (int j = 0; j < count; j++)
         {
             time1 = clock();   
-            ga();
+            ga(0, MAX_SPOTS-1);
             time2 = clock();   
             sum_max += max;
             sum_min += min;
@@ -258,7 +227,7 @@ int main(){
         {
             printf("%d done\n",j * 10);
             time1 = clock();   
-            ga();
+            ga(0, MAX_SPOTS-1);
             time2 = clock();   
             sum_max += max;
             sum_min += min;
@@ -334,6 +303,5 @@ int main(){
     printf("bye\n");
     //解の保存．
     printf("min:%f max:%f\n", min, max);
-    */
     return(0);
 }
