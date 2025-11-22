@@ -35,7 +35,7 @@ void initialize(int start, int goal){
             int spot = rand() % end; //スタート地点からゴールの直前までの中から観光地を選択
             int dest = rand() % (end-spot) + spot; // 選択した観光地より後ろの観光地を選択
             int time = rand() % TIMELIMIT; //出発時刻を選択
-            //if(i==24){printf("%d %d %d %d\n", end, spot, dest, time);}
+            //printf("%d %d %d %d\n", end, spot, dest, time);
             genes[i][spot].dest = dest;
             genes[i][spot].time = time;
         }

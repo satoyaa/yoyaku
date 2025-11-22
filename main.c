@@ -44,10 +44,12 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     savemode = 0;
-    srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    //srand(3);//実行毎に違うを出したい
+    //srand((unsigned int)time(NULL));//実行毎に違うを出したい
+    srand(3);//実行毎に違うを出したい
     initialize(start, goal); //(start, goal)
+    printf("initialization done.\n");
     calc_fitness(start, goal);
+    printf("initial fitness calculation done.\n");
     for (int i = 0; i < MAX_ITERATION; i++)
     {
         printf("iteration:%d ",i);

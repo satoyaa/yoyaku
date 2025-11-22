@@ -92,7 +92,7 @@ void calc_fitness(int start, int goal){
         //初期化.
         int sum = 0;
         int sum_duration = 0;  //デバッグ用
-        int sum_satisdy = 0;   //デバッグ用
+        int sum_satisfy = 0;   //デバッグ用
         if (savemode && i==0)
         {
             //確率計算用の配列を初期化
@@ -124,7 +124,7 @@ void calc_fitness(int start, int goal){
         {
             int duration = 0; //時間計算用
             int satisfy = 0; //満足度計算
-            int next_index;
+            int next_index = 0;
             int pivot_index = start;
             int dest_node = MAX_NODES-1;
             int temp_index = 0;
@@ -134,28 +134,28 @@ void calc_fitness(int start, int goal){
             for (int k = 0; k < MAX_SPOTS; k++)
             {
                 use_reserve[k] = genes_reserves[i][k].spot;
+                waiting_queue[k] = spots[k].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
             }
             //srand((unsigned int)time(NULL));
             //srand(0);
             //printf("rand:%d\n",rand());
             for (int k = 0; k < MAX_NODES; k++)
             {
-                waiting_queue[k] = spots[k].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
                 temp_root[k].vert = -1;
                 temp_root[k].time = 0;
                 temp_root[k].reserve = -1;
                 temp_root[k].reservetimes = 0;
             }
             temp_index++;
-            //待ち時間を30分だけシミュレーション
+            //待ち時間をシミュレーション
             calc_queue_range();
             //評価値計算のメイン
             for (int k = 1; k < MAX_NODES-1; k++)
             {   
                 
                 //間違って範囲外にアクセスした場合の対応
-                if(genes[i][k].vert == -1){continue;}
-                //printf("k:%d pivot:%d next:%d sat:%d dur:%d reserve:%d\n", k, genes[i][pivot_index], genes[i][next_index], satisfy, duration, reserve_spot);
+                if(genes[i][pivot_index].vert == -1){break;}
+                
                 
                 
 
@@ -168,7 +168,9 @@ void calc_fitness(int start, int goal){
                 int minutes = 0;
                 
                 //待ち時間を計算
+                //printf("k:%d pivot:%d next:%d sat:%d dur:%d\n", k, genes[i][pivot_index, genes[i][next_index].vert, satisfy, duration);
                 int wait = waiting_queue[genes[i][pivot_index].vert] * spots[genes[i][pivot_index].vert].t / (spots[genes[i][pivot_index].vert].capacity );
+                //printf("hello2\n");
                 //予約観光地では待ち時間0，早く着いた場合は予約時間まで待機．また，時間に間に合った場合は予約を使用，間に合わなかった場合はちょっとだけペナルティ
                 if(use_reserve[genes[i][pivot_index].vert]==1){
                     if(duration <= genes_reserves[i][genes[i][pivot_index].vert].time){
@@ -199,8 +201,6 @@ void calc_fitness(int start, int goal){
                 //もし待ち時間+所要時間が制限時間をオーバーするならゴールに向かう
                 if(duration+minutes > TIMELIMIT){break;}
                 duration+=minutes;
-                //if(duration < 0 || (TIMELIMIT * 2) < duration){printf("wait1:%d\n",minutes);}
-                //if(duration < 0 || (TIMELIMIT * 2) < duration){printf("duration1:%d %d %d %d %d\n",i, pivot_index, k, genes[i][pivot_index].vert, genes[i][k].vert);}
                 //待ち時間シミュレーション（出発時）
                 calc_queue_range();
                 //printf("\ncalc_queue_range1[%d][%d][%d] done",i,j,k);
@@ -208,6 +208,7 @@ void calc_fitness(int start, int goal){
 
                 while (1)
                 {
+                    //printf("hello\n");
                     //次の巡回地点を決定
                     if (genes[i][k].dest != -1)
                     {
@@ -219,21 +220,34 @@ void calc_fitness(int start, int goal){
                         else{ 
                             k = genes[i][k].dest;
                         }
-                    }
-                    //次の観光地が重複する場合読み飛ばす対応
+                    }else{break;}
+                    //次の観光地が重複する場合読み飛ばし，配列を修正
                     int flag = 0;
                     for (int l = 0; l < MAX_NODES; l++)
                     {
                         if(temp_root[l].vert==-1){break;}
-                        if(genes[i][k].vert==temp_root[l].vert){flag=1;}
+                        if(genes[i][k].vert==temp_root[l].vert){
+                            flag=1;
+                            for (int m = k; m < MAX_NODES-1; m++)
+                            {
+                                genes[i][m].vert = genes[i][m+1].vert;
+                                genes[i][m].time = genes[i][m+1].time;
+                                genes[i][m].dest = genes[i][m+1].dest-1;
+                            }
+                            genes[i][MAX_NODES-1].vert = -1;
+                            genes[i][MAX_NODES-1].time = 100000;
+                            genes[i][MAX_NODES-1].dest = -1;
+                            break;
+                        }
                     }
-                    if(flag){k++;continue;}
+                    if(flag){continue;}
                     break;
                 }
                 
                 next_index = k;
                 //次の観光地が目的地より先なら終了
                 if(next_index >= dest_node){break;}
+                //printf("k:%d pivot:%d next:%d sat:%d dur:%d\n", k, j, genes[i][next_index].vert, satisfy, duration);
                 
                 //ここで次の観光地を回ってもゴールに間に合うかを予想．
                 // 出発時間+移動時間+次観光地の所要時間+ゴールまでの移動時間の予想 
@@ -354,10 +368,10 @@ void calc_fitness(int start, int goal){
             
             sum+= satisfy;
             sum_duration+=duration;
-            sum_satisdy+=satisfy;
+            sum_satisfy+=satisfy;
         }
         fitness[i] = sum / LOOPS;
-        //printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisdy/LOOPS);
+        //printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisfy/LOOPS);
     }
 }
 
