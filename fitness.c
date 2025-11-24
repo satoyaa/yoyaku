@@ -47,11 +47,7 @@ int calc_travel_time(int i, int j){
 }
 
 
-void calc_queue_range(int minutes){
-    if (minutes > 500) //さいだい５じかんでやるため
-    {
-        minutes = 500;
-    }
+void calc_queue_range(){
     for (int k = 0; k < MAX_SPOTS; k++) {
         // パラメータの計算
         double lambda_per_minute = spots[k].crow / 60.0; // 1分あたりの平均到着率 (λ)
@@ -65,38 +61,31 @@ void calc_queue_range(int minutes){
         // waiting_queue[k] と busy_servers[k] は外部で初期化されていると仮定
         // 例: waiting_queue[k] = 0; busy_servers[k] = 0;
         //予約必須観光地の例外処理
-        if (spots[k].crow == 100000)
-        {
-            waiting_queue[k] = 100000;
-            continue;
-        }        
-
-        for (int t = 0; t < minutes; t++) {
             
-            // 1. サービス完了（システムからの退場）
-            // サービス中の人数から、完了した人数を二項分布で決定
-            int completions = binomial_rand(busy_servers[k], p_complete);
-            // 完了した人数分、サービス中から減らす
-            busy_servers[k] -= completions;
+        // 1. サービス完了（システムからの退場）
+        // サービス中の人数から、完了した人数を二項分布で決定
+        int completions = binomial_rand(busy_servers[k], p_complete);
+        // 完了した人数分、サービス中から減らす
+        busy_servers[k] -= completions;
 
-            // 2. 待ちのサービス開始（待ち行列からサービス中へ移動）
-            int free_servers = servers - busy_servers[k];
-            
-            // 待ち人数と空き窓口の数の少ない方を、サービス開始人数とする
-            int to_start = (waiting_queue[k] < free_servers) ? waiting_queue[k] : free_servers;
-            
-            // サービス中の人数を増やし、待ち行列の人数を減らす
-            busy_servers[k] += to_start;
-            waiting_queue[k] -= to_start;
+        // 2. 待ちのサービス開始（待ち行列からサービス中へ移動）
+        int free_servers = servers - busy_servers[k];
+        
+        // 待ち人数と空き窓口の数の少ない方を、サービス開始人数とする
+        int to_start = (waiting_queue[k] < free_servers) ? waiting_queue[k] : free_servers;
+        
+        // サービス中の人数を増やし、待ち行列の人数を減らす
+        busy_servers[k] += to_start;
+        waiting_queue[k] -= to_start;
 
-            // 3. 到着（待ち行列への加算）
-            // 1分間に到着する人数をポアソン乱数で決定
-            int arrivals = poisson_rand(lambda_per_minute);
-            // 到着した人数は全て、待ち行列に追加される
-            waiting_queue[k] += arrivals;
+        // 3. 到着（待ち行列への加算）
+        // 1分間に到着する人数をポアソン乱数で決定
+        int arrivals = poisson_rand(lambda_per_minute);
+        // 到着した人数は全て、待ち行列に追加される
+        waiting_queue[k] += arrivals;
 
-            // ★ シミュレーション結果の記録（例えば、毎分の waiting_queue[k] を保存など）
-        }
+        // ★ シミュレーション結果の記録（例えば、毎分の waiting_queue[k] を保存など）
+        
     }
 }
 
@@ -153,7 +142,7 @@ void calc_fitness(){
             temp_root[temp_index].reservetimes = genes_reserves[i][0].time;
             temp_index++;
             //待ち時間を30分だけシミュレーション
-            calc_queue_range(30);
+            calc_queue_range();
             //評価値計算のメイン
             for (int k = 1; k < MAX_SPOTS-1; k++)
             {   
@@ -199,7 +188,7 @@ void calc_fitness(){
                 if(duration+minutes > TIMELIMIT){break;}
                 duration+=minutes;
                 //待ち時間シミュレーション（出発時）予約確認用
-                calc_queue_range(minutes);
+                calc_queue_range();
                 //printf("\ncalc_queue_range1[%d][%d][%d] done",i,j,k);
                 minutes = 0; //シミュレーションが終わったので時間リセット
                 //予約処理

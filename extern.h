@@ -1,13 +1,13 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 50
-#define POPULATION 30
+#define MAX_ITERATION 100
+#define POPULATION 100
 #define MAX_SPOTS 51
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
-#define LOOPS 50
+#define LOOPS 100
 //#define reserve_rate 1
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)

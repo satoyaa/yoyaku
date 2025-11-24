@@ -80,7 +80,7 @@ void ga(){
 
 int main(){
     //データの読込．
-    readdata("o-sakaFoods.txt");
+    readdata("o-sakaFoodsX.txt");
     //初期個体生成．
     /* initialize(0, MAX_SPOTS-1);
     for (int i = 0; i < POPULATION; i++)
