@@ -44,8 +44,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     savemode = 0;
-    //srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    srand(3);//実行毎に違うを出したい
+    srand((unsigned int)time(NULL));//実行毎に違うを出したい
+    //srand(3);//実行毎に違うを出したい
     initialize(start, goal); //(start, goal)
     printf("initialization done.\n");
     calc_fitness(start, goal);
@@ -68,11 +68,11 @@ void ga(int start, int goal){
         printf("calculate fitness done.\n");
     }
     printf("\n");
-    //selection_tournament();
+    selection_tournament();
     min=INFINITY;
     max=-INFINITY;
     savemode = 1;
-    //calc_fitness();
+    calc_fitness(start, goal);
     best = fitness[0];
     printf("best:%f\n",best);
     
@@ -190,15 +190,18 @@ int main(){
         }
         
         //ここまで
+        
         printf("most appeare root probabilty is %d\n",count_max);
         //printf("excuse: %f sec\n", sum_average/count);
         snprintf(line, sizeof(line), "%d %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
+        /*
         save_file(filenameA,maxroot,MAX_SPOTS);
         save_file(filenameB,minroot,MAX_SPOTS);
         save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
         save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
-        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
+        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);*/
+        printf("all task done");
         
     }
     for (int i = 2; i < 3; i++)
@@ -289,15 +292,17 @@ int main(){
                 count_third_index=j;}
         }
         //ここまで
+        
         printf("most appeare root probabilty is %d\n",count_max);
-        printf("excuse: %f sec\n", sum_average/count);
+        //printf("excuse: %f sec\n", sum_average/count);
         snprintf(line, sizeof(line), "%dX %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
+        /*
         save_file(filenameA,maxroot,MAX_SPOTS);
         save_file(filenameB,minroot,MAX_SPOTS);
         save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
         save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
-        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
+        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);*/
     }
     fclose(fp);
     
