@@ -1,9 +1,8 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 100
-#define POPULATION 100
-#define MAX_SPOTS 51
+#define MAX_SPOTS 3 //観光地数
+#define MAX_NODES MAX_SPOTS*MAX_SPOTS //遺伝子長の最大値
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
@@ -11,6 +10,7 @@
 //#define reserve_rate 1
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)
+#define BRANCHES 5 //分岐の数
 
 
 typedef struct {
@@ -51,13 +51,20 @@ typedef struct Save
     int reservetimes; //予約時刻
 } Save;
 
+typedef struct Gene
+{
+    int vert; //ノードの値
+    int time; //出発予定時刻
+    int dest; //行先(destination)
+} Gene; 
+
+
 extern Spot spots[MAX_SPOTS];  // 構造体配列の外部宣言
-extern int genes[POPULATION][MAX_SPOTS];
-extern Reserve genes_reserves[POPULATION][MAX_SPOTS];
-extern int genes_timelimit[POPULATION][MAX_SPOTS];
-extern int times[POPULATION][MAX_SPOTS];
+extern Gene genes[MAX_SPOTS*MAX_SPOTS];
+extern Reserve genes_reserves[MAX_SPOTS];
+extern int times[MAX_SPOTS];
 extern int queue_range[MAX_SPOTS];
-extern double fitness[POPULATION];
+extern double fitness;
 extern double crossover_rate;
 extern double mutation_rate;
 extern Save save_maxroot[MAX_SPOTS];
@@ -69,12 +76,9 @@ extern double max;
 extern int TIMELIMIT;
 extern int reserve_rate;
 extern int savemode;
-extern void crossover_pmx();
-extern void selection_tournament();
-extern void mutation_swap();
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
-extern void calc_fitness();
+extern void calc_fitness(int start, int goal);
 //extern void serchAll();
 
 

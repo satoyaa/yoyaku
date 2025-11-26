@@ -4,12 +4,12 @@
 #include <math.h>
 #include "extern.h"
 
-int genes[POPULATION][MAX_SPOTS];
-Reserve genes_reserves[POPULATION][MAX_SPOTS];
-int genes_timelimit[POPULATION][MAX_SPOTS];
-int times[POPULATION][MAX_SPOTS];
+Gene genes[MAX_SPOTS*MAX_SPOTS];
+Reserve genes_reserves[MAX_SPOTS];
+int genes_timelimit[MAX_SPOTS];
+int times[MAX_SPOTS];
 Spot spots[MAX_SPOTS];
-double fitness[POPULATION];
+double fitness;
 int queue_range[MAX_SPOTS];
 Save save_maxroot[MAX_SPOTS];
 Save save_minroot[MAX_SPOTS];
@@ -41,38 +41,84 @@ void save_file(const char *filename, Save *array, size_t size) {
     }
 }
 
+void decide_gene_time (int index){
+    if (index<0)
+    {
+        //評価値計算
+        calc_fitness(0, MAX_SPOTS-1);
+        //最良値更新
+        if(best < fitness){
+            best = fitness;
+        }
+        //printf("best:%f\n",best);
+        return;
+    }
+    
+    //分岐時間の決定
+    for (int t = 0; t < TIMELIMIT; t++)
+    {
+        genes[index].time = t;
+        //printf("genes[%d].time=%d\n",index,genes[index].time);
+        decide_gene_time(index - 1);
+    }
+}
 
-void ga(){
+void decide_gene_structure (int length, int index){
+    if (index<0)
+    {
+        decide_gene_time(length);
+        return;
+    }
+    
+    //遺伝子構造の決定
+    for (int i = -1; i < length+1; i++)
+    {
+        if (i != -1)
+        {
+            genes[index].dest = length-i;
+        }
+        else{genes[index].dest = i;}
+        printf("genes[%d].dest=%d\n",index,genes[index].dest);
+        decide_gene_structure(length, index-1);
+    }
+}
+
+void decide_gene_value (int length, int index){
+    if (index<0){
+        decide_gene_structure(length, length);
+        return;
+    }
+    
+    for (int i = 0; i < MAX_SPOTS; i++)
+    {
+        printf("genes[%d].vert=%d\n",index,i);
+        genes[index].vert = i;
+        decide_gene_value(length, index - 1);
+        
+    }
+}
+
+
+void searchAll(){
     savemode = 0;
     srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    srand(0);//実行毎に違うを出したい
-    initialize(0,MAX_SPOTS); //(start, goal)
-    printf("hello2\n");
-    calc_fitness();
-    printf("hello3\n");
-    for (int i = 0; i < MAX_ITERATION; i++)
-    {
-        printf("iteration:%d ",i);
-        //選択
-        selection_tournament();
-        printf("selection done, ");
-        //交叉
-        crossover_pmx();
-        printf("crossover done, ");
-        //突然変異
-        mutation_swap();
-        printf("mutation done, ");
-        //評価値計算
-        calc_fitness();
-        printf("calculate fitness done.\n");
-    }
-    printf("\n");
-    selection_tournament();
     min=INFINITY;
     max=-INFINITY;
-    savemode = 1;
-    calc_fitness();
-    best = fitness[0];
+    //予約初期化
+    for (int j = 0; j < MAX_SPOTS; j++)
+        {
+            genes_reserves[j].spot = -1;genes_reserves[j].time = -1;
+        }
+    //一重目　遺伝子長の決定
+    for (int i = 0; i < MAX_SPOTS*MAX_SPOTS; i++)
+    {
+        //遺伝子の初期化
+        for (int j = 0; j < MAX_SPOTS*MAX_SPOTS; j++){
+            genes[j].vert = -1; genes[j].time = 100000; genes[j].dest = -1;
+        }
+        //各遺伝子の値の決定
+        decide_gene_value(i, i);
+    }
     printf("best:%f\n",best);
     
     
@@ -107,16 +153,12 @@ int main(){
     //ga();
     //serchAll(int start)
     time2 = clock();
-    for (int i = 0; i < 3; i++)
-    {
-        printf("fitness is %f\n", fitness[i]);
-    }
 
     //自動実験プログラム
     int time[] = {60, 120, 180, 240};
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
-    for (int i = 2; i < 3; i++)
+    for (int i = 0; i < 1; i++)
     {
         reserve_rate = 1;
         TIMELIMIT = time[i];
@@ -143,7 +185,7 @@ int main(){
         for (int j = 0; j < count; j++)
         {
             time1 = clock();   
-            ga();
+            searchAll();
             time2 = clock();   
             sum_max += max;
             sum_min += min;
@@ -215,7 +257,7 @@ int main(){
         save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
         
     }
-    for (int i = 2; i < 3; i++)
+    for (int i = 0; i < 1; i++)
     {
         reserve_rate = 0;
         TIMELIMIT = time[i];
@@ -243,7 +285,7 @@ int main(){
         {
             printf("%d done\n",j * 10);
             time1 = clock();   
-            ga();
+            searchAll();
             time2 = clock();   
             sum_max += max;
             sum_min += min;
