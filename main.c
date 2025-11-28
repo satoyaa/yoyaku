@@ -41,62 +41,108 @@ void save_file(const char *filename, Save *array, size_t size) {
     }
 }
 
-void decide_gene_time (int index){
-    if (index<0)
-    {
-        //評価値計算
+void decide_gene_value (int length, int index, int *root, int gene_length){
+    //printf("decide_gene_value called: length=%d index=%d gene_length=%d\n",length,index,gene_length);
+    //遺伝子生成の終了条件
+    if (gene_length<index){
+        printf("debug: calculate fitness\n");
         calc_fitness(0, MAX_SPOTS-1);
         //最良値更新
         if(best < fitness){
             best = fitness;
         }
-        //printf("best:%f\n",best);
+        printf("best:%f\n",best);
+        return;
+    }
+    //枝分かれの終了条件
+    if (length<index){
+        printf("length break %d %d\n", length, index);
+        return;
+    }
+    
+    for (int i = 0; i < MAX_SPOTS; i++)
+    {
+        //printf("genes[%d].vert=%d\n",index,i);
+        genes[index].vert = i;
+        
+        int flag = 0;
+        //枝切り
+        for (int j = 0; j < MAX_SPOTS; j++)
+        {
+            if(root[j]==i){
+                
+                flag = 1;
+                break;
+            }
+        }
+        if (flag)
+        {
+            continue;
+        }
+        root[index]=i;
+        
+        //分岐があれば再帰
+        if(genes[index].dest!=-1){
+            decide_gene_value(genes[index].dest, index + 1, root, gene_length);
+            decide_gene_value(length, genes[index].dest, root, gene_length);
+        }
+        else{
+            decide_gene_value(length, index + 1, root, gene_length);
+        }
+    }
+}
+
+void decide_gene_time (int length, int index){
+    if (index<0)
+    {
+        int root[MAX_NODES];
+        decide_gene_value(length, 0, root, length);
         return;
     }
     
     //分岐時間の決定
-    for (int t = 0; t < TIMELIMIT; t++)
+    for (int t = 0; t < TIMELIMIT; t=t+10)
     {
         genes[index].time = t;
         //printf("genes[%d].time=%d\n",index,genes[index].time);
-        decide_gene_time(index - 1);
+        decide_gene_time(length, index-1);
     }
 }
 
 void decide_gene_structure (int length, int index){
     if (index<0)
     {
-        decide_gene_time(length);
+        //genesのdestをすべて表示
+        /*
+        printf("gene structure decided: ");
+        for (int i = 0; i < length; i++)
+        {
+            printf("%d ", genes[i].dest);
+        }
+        printf("\n");*/
+        
+        decide_gene_time(length, index);
         return;
     }
     
     //遺伝子構造の決定
-    for (int i = -1; i < length+1; i++)
-    {
+    for (int i = -1; i < length-index; i++)
+    {        
         if (i != -1)
         {
-            genes[index].dest = length-i;
+            if (i==length-index-1)
+            {
+                continue;
+            }
+            genes[index].dest = index+i+1;
         }
         else{genes[index].dest = i;}
-        printf("genes[%d].dest=%d\n",index,genes[index].dest);
+        //printf("genes[%d].dest=%d\n",index,genes[index].dest);
         decide_gene_structure(length, index-1);
     }
 }
 
-void decide_gene_value (int length, int index){
-    if (index<0){
-        decide_gene_structure(length, length);
-        return;
-    }
-    
-    for (int i = 0; i < MAX_SPOTS; i++)
-    {
-        printf("genes[%d].vert=%d\n",index,i);
-        genes[index].vert = i;
-        decide_gene_value(length, index - 1);
-        
-    }
-}
+
 
 
 void searchAll(){
@@ -104,20 +150,22 @@ void searchAll(){
     srand((unsigned int)time(NULL));//実行毎に違うを出したい
     min=INFINITY;
     max=-INFINITY;
+    best = -INFINITY;
     //予約初期化
     for (int j = 0; j < MAX_SPOTS; j++)
         {
             genes_reserves[j].spot = -1;genes_reserves[j].time = -1;
         }
     //一重目　遺伝子長の決定
-    for (int i = 0; i < MAX_SPOTS*MAX_SPOTS; i++)
+    for (int i = 0; i < MAX_NODES; i++)
     {
         //遺伝子の初期化
         for (int j = 0; j < MAX_SPOTS*MAX_SPOTS; j++){
             genes[j].vert = -1; genes[j].time = 100000; genes[j].dest = -1;
         }
-        //各遺伝子の値の決定
-        decide_gene_value(i, i);
+        //遺伝子の構造の決定
+        printf("gene length:%d\n",i);
+        decide_gene_structure(i, i);
     }
     printf("best:%f\n",best);
     
@@ -181,7 +229,7 @@ int main(){
         Save minroot[MAX_SPOTS];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
-        int count = 10;
+        int count = 1;
         for (int j = 0; j < count; j++)
         {
             time1 = clock();   
@@ -250,11 +298,11 @@ int main(){
         //printf("excuse: %f sec\n", sum_average/count);
         snprintf(line, sizeof(line), "%d %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
-        save_file(filenameA,maxroot,MAX_SPOTS);
-        save_file(filenameB,minroot,MAX_SPOTS);
-        save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
-        save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
-        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
+        //save_file(filenameA,maxroot,MAX_SPOTS);
+        //save_file(filenameB,minroot,MAX_SPOTS);
+        //save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
+        //save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
+        //save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
         
     }
     for (int i = 0; i < 1; i++)
@@ -280,7 +328,7 @@ int main(){
         Save minroot[MAX_SPOTS];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
-        int count = 10;
+        int count = 1;
         for (int j = 0; j < count; j++)
         {
             printf("%d done\n",j * 10);
@@ -349,11 +397,11 @@ int main(){
         printf("excuse: %f sec\n", sum_average/count);
         snprintf(line, sizeof(line), "%dX %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
-        save_file(filenameA,maxroot,MAX_SPOTS);
-        save_file(filenameB,minroot,MAX_SPOTS);
-        save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
-        save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
-        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
+        //save_file(filenameA,maxroot,MAX_SPOTS);
+        //save_file(filenameB,minroot,MAX_SPOTS);
+        //save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
+        //save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
+        //save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
     }
     fclose(fp);
     

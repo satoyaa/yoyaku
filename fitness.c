@@ -306,6 +306,7 @@ void calc_fitness(int start, int goal){
             //printf("hello3\n");
             if (max < satisfy)
             {
+                /**/
                 for (int k = 0; k < MAX_SPOTS; k++)
                 {
                     save_maxroot[k].vert = -1;
@@ -322,6 +323,9 @@ void calc_fitness(int start, int goal){
                 }
                 max = satisfy;
             }
+            
+            
+            
             //tempルートを保存し発生確率を計算
             int index = -1;
             int flag = 0;
@@ -364,12 +368,21 @@ void calc_fitness(int start, int goal){
             }
             //printf("\n");
         }
+        if (min>satisfy)
+        {
+            min = satisfy;
+        }
+        if (max<satisfy)
+        {
+            max = satisfy;
+        }
         
         sum+= satisfy;
         sum_duration+=duration;
         sum_satisfy+=satisfy;
     }
     fitness = sum / LOOPS;
+    printf("fitness is %f\n", fitness);
     //printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisfy/LOOPS);
 }
 
