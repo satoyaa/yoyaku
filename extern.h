@@ -1,7 +1,7 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 250
+#define MAX_ITERATION 100
 #define POPULATION 100
 #define MAX_SPOTS 51 //観光地数
 #define MAX_NODES 150 //遺伝子長の最大値
@@ -82,6 +82,8 @@ extern void crossover_pmx();
 extern void crossover_twopoint();
 extern void selection_tournament();
 extern void mutation_swap();
+extern void mutation_random();
+extern void local_search(int start, int goal);
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness(int start, int goal);

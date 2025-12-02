@@ -131,6 +131,8 @@ void calc_fitness(int start, int goal){
             int expect;
             Save temp_root[MAX_NODES];
             int use_reserve[MAX_SPOTS];
+            //duration += (TIMELIMIT/20 - rand() % (TIMELIMIT/10)); //スタート時間をランダムに設定
+            duration += (rand()%31 - 15); //-15分から+15分の範囲でランダムに変更
             for (int k = 0; k < MAX_SPOTS; k++)
             {
                 use_reserve[k] = genes_reserves[i][k].spot;

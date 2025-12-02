@@ -32,9 +32,10 @@ void initialize(int start, int goal){
         //ブランチの作成
         for (int j = 0; j < branches; j++)
         {
-            int spot = rand() % end; //スタート地点からゴールの直前までの中から観光地を選択
-            int dest = rand() % (end-spot) + spot; // 選択した観光地より後ろの観光地を選択
-            int time = rand() % TIMELIMIT; //出発時刻を選択
+            if(end<=1){break;}
+            int spot = rand() % (end-1); //スタート地点からゴールの直前までの中から観光地を選択
+            int dest = rand() % (end-(spot+1)) + (spot + 1); // 選択した観光地より後ろの観光地を選択
+            int time = TIMELIMIT / (rand() % 6 + 1); //出発時刻を選択
             //printf("%d %d %d %d\n", end, spot, dest, time);
             genes[i][spot].dest = dest;
             genes[i][spot].time = time;
@@ -53,7 +54,7 @@ void initialize(int start, int goal){
             if (r==1 && spots[genes[i][j].vert].reservable==1)
             {
                 genes_reserves[i][j].spot = 1;
-                genes_reserves[i][j].time = rand() % TIMELIMIT;
+                genes_reserves[i][j].time = TIMELIMIT / (rand() % 20 + 1); //予約時刻を選択
             }
         }
         
