@@ -44,29 +44,29 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     savemode = 0;
-    //srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    srand(3);//実行毎に違うを出したい
+    srand((unsigned int)time(NULL));//実行毎に違うを出したい
+    //srand(3);//実行毎に違うを出したい
     initialize(start, goal); //(start, goal)
     printf("initialization done.\n");
     calc_fitness(start, goal);
     printf("initial fitness calculation done.\n");
     for (int i = 0; i < MAX_ITERATION; i++)
     {
-        printf("iteration:%d ",i);
+        //printf("iteration:%d ",i);
         //選択
         selection_tournament();
-        printf("selection done, ");
+        //printf("selection done, ");
         //交叉
         //crossover_pmx();
         crossover_twopoint();
-        printf("crossover done, ");
+        //printf("crossover done, ");
         //突然変異
         //mutation_swap();
         mutation_random();
-        printf("mutation done, ");
+        //printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
-        printf("calculate fitness done.\n");
+        //printf("calculate fitness done.\n");
     }
     printf("\n");
     selection_tournament();
@@ -75,6 +75,8 @@ void ga(int start, int goal){
     max=-INFINITY;
     savemode = 1;
     local_search(start, goal);
+    selection_tournament();
+    calc_fitness(start, goal);
     best = fitness[0];
     printf("best:%f\n",best);
     
@@ -127,7 +129,7 @@ int main(){
         Save minroot[MAX_SPOTS];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
-        int count = 1;
+        int count = 10;
         for (int j = 0; j < count; j++)
         {
             time1 = clock();   
@@ -206,7 +208,7 @@ int main(){
         printf("all task done");
         
     }
-    for (int i = 2; i < 3; i++)
+    for (int i = 3; i < 3; i++)
     {
         reserve_rate = 0;
         TIMELIMIT = time[i];

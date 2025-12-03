@@ -75,6 +75,16 @@ void local_search(int start, int goal){
         return;
     }
     
+    if (length<=0)
+    {
+        printf("genes : ");
+        for (int i = 0; i < MAX_NODES; i++)
+        {
+            printf("%d ", genes[0][0].vert);
+        }
+        printf("\n");
+    }
+    
     //局所探索の実装
     //予約時刻を最適化
     //遺伝子長を前から順に辿っていき，予約観光地があれば予約時刻を少しずつ変化させて評価値を計算
@@ -86,11 +96,12 @@ void local_search(int start, int goal){
         temp_dest[j] = genes[0][j].dest;
     }
     int a = 0;
+    
+    
     //予約時刻の正規化
     while (done)
     {
-        printf("%d",a);
-        a+=1;
+        if(0>=length){break;}
         dest = 10000;
         duration = calc_travel_time1(start, genes[0][0].vert);
         duration += spots[start].t;
@@ -101,8 +112,9 @@ void local_search(int start, int goal){
             }
             if(genes[0][j].dest!=-1 && temp_dest[j]!=-1){
                 dest=temp_dest[j];
-            }else{
-                printf("break at %d\n",j);
+                printf("dest %d\n",dest);
+            }else if(genes[0][j].dest!=-1 && temp_dest[j]==-1){
+                printf("break at %d %d\n",j, temp_dest[j]);
                 j=genes[0][j].dest;
                 printf("break at %d\n",j);
             }

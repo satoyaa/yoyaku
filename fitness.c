@@ -230,7 +230,7 @@ void calc_fitness(int start, int goal){
                         if(temp_root[l].vert==-1){break;}
                         if(genes[i][k].vert==temp_root[l].vert){
                             flag=1;
-                            for (int m = k; m < MAX_NODES-1; m++)
+                            for (int m = l; m < MAX_NODES-1; m++)
                             {
                                 genes[i][m].vert = genes[i][m+1].vert;
                                 genes[i][m].time = genes[i][m+1].time;
