@@ -41,10 +41,9 @@ void save_file(const char *filename, Save *array, size_t size) {
     }
 }
 
-void decide_gene_value (int length, int index, int *root, int gene_length){
-    //printf("decide_gene_value called: length=%d index=%d gene_length=%d\n",length,index,gene_length);
-    //遺伝子生成の終了条件
-    if (gene_length<index){
+void decide_gene_yoyakuTime (int index){
+    if (index<MAX_SPOTS)
+    {
         printf("debug: calculate fitness\n");
         calc_fitness(0, MAX_SPOTS-1);
         //最良値更新
@@ -52,6 +51,45 @@ void decide_gene_value (int length, int index, int *root, int gene_length){
             best = fitness;
         }
         printf("best:%f\n",best);
+        return;
+    }
+    //予約時間の決定
+    for (int t = 0; t < TIMELIMIT; t=t+10)
+    {
+        if(genes_reserves[index].spot==-1){
+            break;
+        }
+        genes_reserves[index].time = t;
+        //printf("genes_reserves[%d]: spot=%d time=%d\n",index,genes_reserves[index].spot,genes_reserves[index].time);
+        decide_gene_yoyakuTime(index+1);
+    }
+};
+
+void decide_gene_yoyaku (int index){
+    if (index<MAX_SPOTS)
+    {
+        decide_gene_yoyakuTime(0);   
+        return;
+    }
+    
+    //予約の決定
+    for (int r = 0; r < 2; r++)
+    {
+        if(spots[genes[index].vert].reservable==0||r==0){
+            break;
+        }
+        genes_reserves[index].spot = r;
+        //printf("genes_reserves[%d]: spot=%d time=%d\n",index,genes_reserves[index].spot,genes_reserves[index].time);
+        decide_gene_yoyaku(index+1);
+    }
+    
+};
+
+void decide_gene_value (int length, int index, int *root, int gene_length){
+    //printf("decide_gene_value called: length=%d index=%d gene_length=%d\n",length,index,gene_length);
+    //遺伝子生成の終了条件
+    if (gene_length<index){
+        decide_gene_yoyaku(0);
         return;
     }
     //枝分かれの終了条件
@@ -66,7 +104,7 @@ void decide_gene_value (int length, int index, int *root, int gene_length){
         genes[index].vert = i;
         
         int flag = 0;
-        //枝切り
+        //枝狩り
         for (int j = 0; j < MAX_SPOTS; j++)
         {
             if(root[j]==i){
@@ -103,6 +141,11 @@ void decide_gene_time (int length, int index){
     //分岐時間の決定
     for (int t = 0; t < TIMELIMIT; t=t+10)
     {
+        if (genes[index].dest==-1)
+        {
+            continue;
+        }
+        
         genes[index].time = t;
         //printf("genes[%d].time=%d\n",index,genes[index].time);
         decide_gene_time(length, index-1);
@@ -229,7 +272,7 @@ int main(){
         Save minroot[MAX_SPOTS];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
-        int count = 1;
+        int count = 10;
         for (int j = 0; j < count; j++)
         {
             time1 = clock();   
@@ -295,7 +338,7 @@ int main(){
         
         //ここまで
         printf("most appeare root probabilty is %d\n",count_max);
-        //printf("excuse: %f sec\n", sum_average/count);
+        printf("excuse: %f sec\n", sum_time/count);
         snprintf(line, sizeof(line), "%d %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
         //save_file(filenameA,maxroot,MAX_SPOTS);
@@ -305,7 +348,7 @@ int main(){
         //save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);
         
     }
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 0; i++)
     {
         reserve_rate = 0;
         TIMELIMIT = time[i];
