@@ -8,7 +8,7 @@
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
-#define LOOPS 100
+#define LOOPS 30
 //#define reserve_rate 1
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)
@@ -69,9 +69,9 @@ extern int queue_range[MAX_SPOTS];
 extern double fitness[POPULATION];
 extern double crossover_rate;
 extern double mutation_rate;
-extern Save save_maxroot[MAX_SPOTS];
-extern Save save_minroot[MAX_SPOTS];
-extern Save save_temproot[LOOPS][MAX_SPOTS];
+extern Save save_maxroot[MAX_NODES];
+extern Save save_minroot[MAX_NODES];
+extern Save save_temproot[LOOPS][MAX_NODES];
 extern int count_temproot[LOOPS];
 extern double min;
 extern double max;
@@ -84,6 +84,7 @@ extern void selection_tournament();
 extern void mutation_swap();
 extern void mutation_random();
 extern void local_search(int start, int goal);
+extern void local_search_binary(int start, int goal);
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness(int start, int goal);

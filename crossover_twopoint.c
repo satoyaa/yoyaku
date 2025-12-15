@@ -64,7 +64,7 @@ void crossover_twopoint(){
             if(index1>=MAX_NODES){ break;}
             temp1[index1].vert = genes[i][j].vert;
             temp1[index1].time = genes[i][j].time;
-            temp1[index1].dest = genes[i][j].dest;
+            temp1[index1].dest = genes[i][j].dest+start1;
             index1+=1;
         }
         for (int j = start1; j < end1; j++)
@@ -72,7 +72,7 @@ void crossover_twopoint(){
             if(index2>=MAX_NODES){break;}
             temp2[index2].vert = genes[i+1][j].vert;
             temp2[index2].time = genes[i+1][j].time;
-            temp2[index2].dest = genes[i+1][j].dest;
+            temp2[index2].dest = genes[i+1][j].dest+start2;
             index2+=1;
         }
         for (int j = end1; j < MAX_NODES; j++)
@@ -80,7 +80,7 @@ void crossover_twopoint(){
             if (index1>=MAX_NODES){break;}
             temp1[index1].vert = genes[i][j].vert;
             temp1[index1].time = genes[i][j].time;
-            temp1[index1].dest = genes[i][j].dest;
+            temp1[index1].dest = genes[i][j].dest+start1+end2-start2;
             index1+=1;
         }
         for (int j = end2; j < MAX_NODES; j++)
@@ -88,7 +88,7 @@ void crossover_twopoint(){
             if (index2>=MAX_NODES){break;}
             temp2[index2].vert = genes[i+1][j].vert;
             temp2[index2].time = genes[i+1][j].time;
-            temp2[index2].dest = genes[i+1][j].dest;
+            temp2[index2].dest = genes[i+1][j].dest+start2+end1-start1;
             index2+=1;
         }
         //範囲外への分岐を修正
@@ -100,9 +100,11 @@ void crossover_twopoint(){
         
         //tempをgeneに置き換えて終了
         for (int j = 0; j < MAX_NODES; j++) {
-            genes[i][j].vert = temp1[j].vert;
-            genes[i][j].time = temp1[j].time;
-            genes[i][j].dest = temp1[j].dest;
+            if(i!=0){
+                genes[i][j].vert = temp1[j].vert;
+                genes[i][j].time = temp1[j].time;
+                genes[i][j].dest = temp1[j].dest;
+            }
             genes[i+1][j].vert = temp2[j].vert;
             genes[i+1][j].time = temp2[j].time;
             genes[i+1][j].dest = temp2[j].dest;

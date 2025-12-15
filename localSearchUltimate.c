@@ -4,19 +4,19 @@
 #include <math.h>
 #include "extern.h"
 
-double deg2rad1(double deg) {
+double deg2rad3(double deg) {
   return deg * M_PI / 180.0;
 }
 
-int calc_travel_time1(int i, int j){
+int calc_travel_time2(int i, int j){
     double x1 = spots[i].coordinate_x;
     double x2 = spots[j].coordinate_x;
     double y1 = spots[i].coordinate_y;
     double y2 = spots[j].coordinate_y;
-    x1 = deg2rad1(x1);
-    x2 = deg2rad1(x2);
-    y1 = deg2rad1(y1);
-    y2 = deg2rad1(y2);
+    x1 = deg2rad3(x1);
+    x2 = deg2rad3(x2);
+    y1 = deg2rad3(y1);
+    y2 = deg2rad3(y2);
     //double dx = spots[i].coordinate_x - spots[j].coordinate_x;
     //double dy = spots[i].coordinate_y - spots[j].coordinate_y;
     double dist = EARTH_RAD * acos(sin(y1) * sin(y2) + cos(y1) * cos(y2) * cos(x2 - x1));
@@ -24,14 +24,14 @@ int calc_travel_time1(int i, int j){
     return(t);
 }
 
-double factorial(int n) {
+double factorial1(int n) {
     double result = 1.0;
     for (int i = 2; i <= n; i++) result *= i;
     return result;
 }
 
 // M/M/c モデルの平均待ち時間 Wq を計算
-double mmc_waiting_time(double lambda, int c, double service_time) {
+double mmc_waiting_time1(double lambda, int c, double service_time) {
     double mu = 1.0 / service_time;   // サービス率 μ
     double rho = lambda / (c * mu);   // 利用率 ρ
     double lambda_mu = lambda / mu;   // λ/μ
@@ -44,15 +44,15 @@ double mmc_waiting_time(double lambda, int c, double service_time) {
     // --- P0 の計算 ---
     double sum = 0.0;
     for (int n = 0; n < c; n++) {
-        sum += pow(lambda_mu, n) / factorial(n);
+        sum += pow(lambda_mu, n) / factorial1(n);
     }
 
-    double last_term = pow(lambda_mu, c) / (factorial(c) * (1.0 - rho));
+    double last_term = pow(lambda_mu, c) / (factorial1(c) * (1.0 - rho));
     double P0 = 1.0 / (sum + last_term);
 
     // --- Lq の計算 ---
     double Lq = (pow(lambda_mu, c) * rho) /
-                (factorial(c) * pow(1.0 - rho, 2.0)) * P0;
+                (factorial1(c) * pow(1.0 - rho, 2.0)) * P0;
 
     // --- 平均待ち時間 Wq ---
     double Wq = Lq / lambda;
@@ -62,7 +62,7 @@ double mmc_waiting_time(double lambda, int c, double service_time) {
 
 //局所探索の実装
 //終了時刻までに訪問できる観光地の数を増やす
-void local_search(int start, int goal){
+void local_search_binary(int start, int goal){
     //遺伝子長を計算
     int length = 0;
     for (int j = 0; j < MAX_NODES; j++)
@@ -103,7 +103,7 @@ void local_search(int start, int goal){
     {
         if(0>=length){break;}
         dest = 10000;
-        duration = calc_travel_time1(start, genes[0][0].vert);
+        duration = calc_travel_time2(start, genes[0][0].vert);
         duration += spots[start].t;
         for (int j = 0; j < length; j++){
             if(j>dest){
@@ -115,15 +115,15 @@ void local_search(int start, int goal){
             }
             if(genes[0][j].dest!=-1 && temp_dest[j]!=-1){
                 dest=temp_dest[j];
-                printf("destlocal %d length %d j %d\n",dest, length , j);
+                printf("dest %d length %d j %d\n",dest, length , j);
             }else if(genes[0][j].dest!=-1 && temp_dest[j]==-1){
                 printf("break at %d %d\n",j, temp_dest[j]);
                 j=genes[0][j].dest;
                 printf("break at %d\n",j);
             }
             if(genes_reserves[0][genes[0][j].vert].spot != 1){
-                duration += spots[genes[0][j].vert].t+mmc_waiting_time(spots[genes[0][j].vert].crow, spots[genes[0][j].vert].capacity, spots[genes[0][j].vert].t);
-                duration += calc_travel_time1(genes[0][j].vert, genes[0][j+1].vert);
+                duration += spots[genes[0][j].vert].t+mmc_waiting_time1(spots[genes[0][j].vert].crow, spots[genes[0][j].vert].capacity, spots[genes[0][j].vert].t);
+                duration += calc_travel_time2(genes[0][j].vert, genes[0][j+1].vert);
                 if (j==length-1)
                 {
                     done=0;
@@ -131,8 +131,8 @@ void local_search(int start, int goal){
                 continue;
             } //予約観光地でなければスキップ
             genes_reserves[0][genes[0][j].vert].time = duration;
-            duration += spots[genes[0][j].vert].t+mmc_waiting_time(spots[genes[0][j].vert].crow, spots[genes[0][j].vert].capacity, spots[genes[0][j].vert].t);
-            duration += calc_travel_time1(genes[0][j].vert, genes[0][j+1].vert);
+            duration += spots[genes[0][j].vert].t+mmc_waiting_time1(spots[genes[0][j].vert].crow, spots[genes[0][j].vert].capacity, spots[genes[0][j].vert].t);
+            duration += calc_travel_time2(genes[0][j].vert, genes[0][j+1].vert);
             if (j==length-1)
             {
                 done=0;
@@ -141,6 +141,7 @@ void local_search(int start, int goal){
     }
     //正規化した予約時刻で局所探索を計算
     //エリート個体をコピー
+    int range = 10;
     for (int i = 0; i < POPULATION; i++)
     {
         for (int j = 0; j < MAX_NODES; j++)
@@ -153,12 +154,39 @@ void local_search(int start, int goal){
             genes_reserves[i][j].time = genes_reserves[0][j].time;  
         }
     }
-    for (int i = 0; i < POPULATION; i++)
+
+    int best_index=0;
+    for (int i = 0; i < MAX_RESERVES; i++)
     {
-        for (int j = 0; j < MAX_SPOTS; j++)
+        range=10;
+        for (int j = 0; j < 10; j++)
         {
-            if(genes_reserves[i][j].spot != 1){continue;} //予約観光地でなければスキップ
-            genes_reserves[i][j].time = genes_reserves[i][j].time + (rand()%11 - 5); //-5分から+5分の範囲でランダムに変更
+            if(genes_reserves[best_index][i].spot==0){continue;}
+            for (int k = 0; k < MAX_RESERVES; k++)
+            {
+                genes_reserves[0][k]=genes_reserves[best_index][k];
+                genes_reserves[1][k]=genes_reserves[best_index][k];
+                genes_reserves[2][k]=genes_reserves[best_index][k];
+                if(k==i){
+                    genes_reserves[1][k].time-=10;
+                    genes_reserves[2][k].time+=10;
+                }
+            }
+            calc_fitness(start, goal);
+            if (fitness[0]<fitness[1] && fitness[2]<fitness[1])
+            {   
+                best_index=1;
+            }
+            else if (fitness[1]<fitness[2] && fitness[0]<fitness[2])
+            {
+                best_index=2;
+            }
+            else if (fitness[2]<fitness[0] && fitness[2]<fitness[0])
+            {
+                best_index=0;
+            }
+            if(range<1){break;}
+            if(best_index==0){range = range*0.5;}
         }
     }
     calc_fitness(start, goal);

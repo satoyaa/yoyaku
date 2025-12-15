@@ -5,10 +5,11 @@
 
 
 void selection_tournament(){
-    double best_fitness = 0;
+    double best_fitness = fitness[0];
     int best_index = 0;
     Gene temp[POPULATION][MAX_NODES];
     Reserve temp_reserve[POPULATION][MAX_SPOTS];
+    double temp_fitness[POPULATION];
     //一応初期化
     for (int i = 0; i < POPULATION; i++)
     {
@@ -22,12 +23,16 @@ void selection_tournament(){
                 temp_reserve[POPULATION][MAX_SPOTS].time=-1;
             } 
         }
-        
+        temp_fitness[i]=0;
     }
     
     for (int i = 0; i < POPULATION; i++)
     {
-        if(best_fitness < fitness[i]){best_fitness = fitness[i];best_index=i;}
+        if(best_fitness < fitness[i]){
+            best_fitness = fitness[i];
+            //printf("best is changed %d=>%d\n", best_index, i);
+            best_index=i;
+        }
         int r1 = rand() % POPULATION;
         int r2 = rand() % POPULATION;
         double fitness1 = fitness[r1];
@@ -44,6 +49,7 @@ void selection_tournament(){
                     temp_reserve[i][j].time = genes_reserves[r1][j].time;
                 }
             }
+            temp_fitness[i]=fitness1;
         }
         else{
             for (int j = 0; j < MAX_NODES; j++)
@@ -57,6 +63,7 @@ void selection_tournament(){
                     temp_reserve[i][j].time = genes_reserves[r2][j].time;
                 }  
             }
+            temp_fitness[i]=fitness2;
         }
     }
     //エリート個体を置き換える
@@ -70,6 +77,7 @@ void selection_tournament(){
             genes_reserves[0][j].time = genes_reserves[best_index][j].time;
         } 
     }
+    fitness[0]=fitness[best_index];
     //エリート以外を置き換える
     for (int i = 1; i < POPULATION; i++)
     {
@@ -83,6 +91,7 @@ void selection_tournament(){
                 genes_reserves[i][j].time = temp_reserve[i][j].time;    
             } 
         }
+        fitness[i]=temp_fitness[i];
     }
     
 }

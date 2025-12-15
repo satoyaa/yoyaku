@@ -10,9 +10,9 @@ int times[POPULATION][MAX_SPOTS];
 Spot spots[MAX_SPOTS];
 double fitness[POPULATION];
 int queue_range[MAX_SPOTS];
-Save save_maxroot[MAX_SPOTS];
-Save save_minroot[MAX_SPOTS];
-Save save_temproot[LOOPS][MAX_SPOTS];
+Save save_maxroot[MAX_NODES];
+Save save_minroot[MAX_NODES];
+Save save_temproot[LOOPS][MAX_NODES];
 int count_temproot[LOOPS];
 double crossover_rate = 0.5;
 double mutation_rate = 0.5;
@@ -44,41 +44,52 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     savemode = 0;
-    srand((unsigned int)time(NULL));//実行毎に違うを出したい
-    //srand(3);//実行毎に違うを出したい
+    //srand((unsigned int)time(NULL));//実行毎に違うを出したい
+    srand(0);//デバッグ用に固定した値を出したい
     initialize(start, goal); //(start, goal)
     printf("initialization done.\n");
     calc_fitness(start, goal);
     printf("initial fitness calculation done.\n");
+    FILE *fp = fopen("GaResult.txt", "w"); // 書き込みモードで開く
+    char line[256];
+    if (fp == NULL) {
+        perror("I can't open the file\n");
+        exit(EXIT_FAILURE);
+    }
     for (int i = 0; i < MAX_ITERATION; i++)
     {
-        //printf("iteration:%d ",i);
+        printf("iteration:%d ",i);
         //選択
         selection_tournament();
-        //printf("selection done, ");
+        printf("selection done, fitness is %f, ", fitness[0]);
+        snprintf(line, sizeof(line), "%d %f\n",i, fitness[0]);
+        fprintf(fp, "%s", line);
         //交叉
         //crossover_pmx();
         crossover_twopoint();
-        //printf("crossover done, ");
+        printf("crossover done, ");
         //突然変異
         //mutation_swap();
         mutation_random();
-        //printf("mutation done, ");
+        printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
-        //printf("calculate fitness done.\n");
+        printf("calculate fitness done.\n");
     }
     printf("\n");
     selection_tournament();
     calc_fitness(start, goal);
+    //local_search(start, goal);
+    selection_tournament();
+    local_search_binary(start, goal);
+    selection_tournament();
     min=INFINITY;
     max=-INFINITY;
     savemode = 1;
-    local_search(start, goal);
-    selection_tournament();
     calc_fitness(start, goal);
     best = fitness[0];
     printf("best:%f\n",best);
+    fclose(fp);
     
     
 }
@@ -94,7 +105,7 @@ int main(){
     //printf("hello\n");
     clock_t time1, time2;
     time1 = clock();   
-    ga(0, MAX_SPOTS-1);
+    //ga(0, MAX_SPOTS-1);
     //serchAll(int start)
     //calc_fitness();
     time2 = clock();
@@ -125,11 +136,11 @@ int main(){
         double sum_min = 0;
         double sum_average = 0;
         double sum_time = 0;
-        Save maxroot[MAX_SPOTS];
-        Save minroot[MAX_SPOTS];
+        Save maxroot[MAX_NODES];
+        Save minroot[MAX_NODES];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
-        int count = 10;
+        int count = 1;
         for (int j = 0; j < count; j++)
         {
             time1 = clock();   
@@ -199,12 +210,11 @@ int main(){
         //printf("excuse: %f sec\n", sum_average/count);
         snprintf(line, sizeof(line), "%d %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
-        /*
-        save_file(filenameA,maxroot,MAX_SPOTS);
-        save_file(filenameB,minroot,MAX_SPOTS);
-        save_file(filenameC,save_temproot[count_max_index],MAX_SPOTS);
-        save_file(filenameD,save_temproot[count_second_index],MAX_SPOTS);
-        save_file(filenameE,save_temproot[count_third_index],MAX_SPOTS);*/
+        save_file(filenameA,maxroot,MAX_NODES);
+        save_file(filenameB,minroot,MAX_NODES);
+        save_file(filenameC,save_temproot[count_max_index],MAX_NODES);
+        save_file(filenameD,save_temproot[count_second_index],MAX_NODES);
+        save_file(filenameE,save_temproot[count_third_index],MAX_NODES);
         printf("all task done");
         
     }
