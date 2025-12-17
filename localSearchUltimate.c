@@ -113,10 +113,10 @@ void local_search_binary(int start, int goal){
                 }
                 break;
             }
-            if(genes[0][j].dest!=-1 && temp_dest[j]!=-1){
+            if(genes[0][j].dest!=-1 && temp_dest[j]!=-1){//destで終わるように設定
                 dest=temp_dest[j];
                 printf("dest %d length %d j %d\n",dest, length , j);
-            }else if(genes[0][j].dest!=-1 && temp_dest[j]==-1){
+            }else if(genes[0][j].dest!=-1 && temp_dest[j]==-1&&j<genes[0][j].dest){//destまでindexを飛ばす
                 printf("break at %d %d\n",j, temp_dest[j]);
                 j=genes[0][j].dest;
                 printf("break at %d\n",j);

@@ -1,10 +1,10 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 100
+#define MAX_ITERATION 200
 #define POPULATION 100
 #define MAX_SPOTS 51 //観光地数
-#define MAX_NODES 150 //遺伝子長の最大値
+#define MAX_NODES 400 //遺伝子長の最大値
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)

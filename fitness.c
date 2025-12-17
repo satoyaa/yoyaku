@@ -92,7 +92,7 @@ void calc_fitness(int start, int goal){
         //初期化.
         double sum = 0;
         int sum_duration = 0;  //デバッグ用
-        int sum_satisfy = 0;   //デバッグ用
+        double sum_satisfy = 0;   //デバッグ用
         if (savemode && i==0)
         {
             //確率計算用の配列を初期化
@@ -385,8 +385,8 @@ void calc_fitness(int start, int goal){
         }
         //printf("%d\n", i);
         if(i==0&&(!savemode)){
-            printf("%f", sum);
-            continue;
+            //printf("%f", sum);
+            //continue;
         }
         fitness[i] = sum / loops;
         //printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisfy/LOOPS);
