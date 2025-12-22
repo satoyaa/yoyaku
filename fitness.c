@@ -102,8 +102,6 @@ void calc_fitness(int start, int goal){
                 {
                     save_temproot[j][k].vert = -1;
                     save_temproot[j][k].time = 0;
-                    save_temproot[j][k].reserve = -1;
-                    save_temproot[j][k].reservetimes = 0;
                 } 
                 count_temproot[j] = 0;
             }
@@ -147,13 +145,9 @@ void calc_fitness(int start, int goal){
             {
                 temp_root[k].vert = -1;
                 temp_root[k].time = 0;
-                temp_root[k].reserve = -1;
-                temp_root[k].reservetimes = 0;
             }
             temp_root[temp_index].vert = start;
             temp_root[temp_index].time = 0;
-            temp_root[temp_index].reserve = -1;
-            temp_root[temp_index].reservetimes = 0;
             temp_index++;
             //待ち時間をシミュレーション
             calc_queue_range();
@@ -169,9 +163,7 @@ void calc_fitness(int start, int goal){
 
                 //printf("%d ", duration);
                 temp_root[temp_index].vert = genes[i][pivot_index].vert;
-                temp_root[temp_index].time = genes[i][pivot_index].vert;
-                temp_root[temp_index].reserve = genes_reserves[i][pivot_index].spot;
-                temp_root[temp_index].reservetimes = genes_reserves[i][pivot_index].time;
+                temp_root[temp_index].time = genes[i][pivot_index].time;
                 temp_index++;
                 int minutes = 0;
                 
@@ -269,17 +261,16 @@ void calc_fitness(int start, int goal){
                 minutes += calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert); 
                 //printf("\ncalc_travel_time4[%d][%d][%d] done",i,j,k);
 
-                duration += minutes;
-                satisfy += spots[genes[i][pivot_index].vert].value;
+                duration += minutes;                
                 pivot_index = next_index;
+                satisfy += spots[genes[i][pivot_index].vert].value;
             }
            
             //終了後ゴールまでの経路を入れる
             duration+=calc_travel_time(genes[i][pivot_index].vert, goal);
             temp_root[temp_index].vert = goal;
             temp_root[temp_index].time = 0;
-            temp_root[temp_index].reserve = -1;
-            temp_root[temp_index].reservetimes = 0;
+            //printf("satisfy:%f\n",satisfy);
             
             //終了時刻に間に合わない場合はペナルティ
             if (duration > TIMELIMIT)
@@ -297,42 +288,44 @@ void calc_fitness(int start, int goal){
             {
                 //評価値が最低であればsaveを更新
                 //printf("save ans\n");
-                if (satisfy < min)
+                if (satisfy < min || j==0)
                 {
+                    printf("bonjour\n");
                     for (int k = 0; k < MAX_NODES; k++)
                     {
                         save_minroot[k].vert = -1;
                         save_minroot[k].time = 0;
-                        save_minroot[k].reserve = 0;
-                        save_minroot[k].reservetimes = -1;
                     }
                     for (int k = 0; k < MAX_NODES; k++)
                     {
                         //printf("%d ", temp_root[k].vert);
+                        if (temp_root[k].vert==-1)
+                        {
+                            break;
+                        }
                         save_minroot[k].vert = temp_root[k].vert;
                         save_minroot[k].time = temp_root[k].time;
-                        save_minroot[k].reserve = temp_root[k].reserve;
-                        save_minroot[k].reservetimes = temp_root[k].reservetimes;
                     }
                     min = satisfy;
                 }
                 //評価値が最大であれば経路を保存
                 //printf("hello3\n");
-                if (max < satisfy)
+                if (max < satisfy || j==0)
                 {
+                    printf("hello\n");
                     for (int k = 0; k < MAX_NODES; k++)
                     {
                         save_maxroot[k].vert = -1;
                         save_maxroot[k].time = 0;
-                        save_maxroot[k].reserve = 0;
-                        save_maxroot[k].reservetimes = -1;
                     }
                     for (int k = 0; k < MAX_NODES; k++)
                     {
+                        if (temp_root[k].vert==-1)
+                        {
+                            break;
+                        }
                         save_maxroot[k].vert = temp_root[k].vert;
                         save_maxroot[k].time = temp_root[k].time;
-                        save_maxroot[k].reserve = temp_root[k].reserve;
-                        save_maxroot[k].reservetimes = temp_root[k].reservetimes;
                     }
                     max = satisfy;
                 }
@@ -340,10 +333,19 @@ void calc_fitness(int start, int goal){
                 int index = -1;
                 int flag = 0;
                 //デバック用
-                if(0){
+                if(debug){
+                    printf("duration:%d\n",duration);
+                    printf("max_root:");
+                    for (int k = 0; k < MAX_NODES; k++)
+                    {
+                        printf("%d ", save_maxroot[k].vert);
+                    }
+                    printf("\n");
+                }
+                if(debug){
                     printf("duration:%d\n",duration);
                     printf("temproot:");
-                    for (int k = 0; k < MAX_SPOTS; k++)
+                    for (int k = 0; k < MAX_NODES; k++)
                     {
                         printf("%d ", temp_root[k].vert);
                     }
@@ -369,10 +371,12 @@ void calc_fitness(int start, int goal){
                 for (int k = 0; k < MAX_NODES; k++)
                 {
                     //printf("%d ",temp_root[k].vert);
+                    if (temp_root[k].vert==-1)
+                    {
+                            break;
+                    }
                     save_temproot[index][k].vert = temp_root[k].vert;
                     save_temproot[index][k].time = temp_root[k].time;
-                    save_temproot[index][k].reserve = temp_root[k].reserve;
-                    save_temproot[index][k].reservetimes = temp_root[k].reservetimes;
                     //printf("%d ",save_temproot[index][k].vert);
                     
                 }

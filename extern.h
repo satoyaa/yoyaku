@@ -3,8 +3,9 @@
 
 #define MAX_ITERATION 200
 #define POPULATION 100
-#define MAX_SPOTS 51 //観光地数
-#define MAX_NODES 400 //遺伝子長の最大値
+#define MAX_SPOTS 30 //観光地数
+#define MAX_NODES 1000 //遺伝子長の最大値
+#define MAX_INITIALIZE_NODES 50
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
@@ -49,8 +50,6 @@ typedef struct Save
 {
     int vert; //ノードの値
     int time; //出発予定時刻
-    int reserve; //予約状況
-    int reservetimes; //予約時刻
 } Save;
 
 typedef struct Gene
@@ -62,9 +61,8 @@ typedef struct Gene
 
 
 extern Spot spots[MAX_SPOTS];  // 構造体配列の外部宣言
-extern Gene genes[POPULATION][MAX_SPOTS];
+extern Gene genes[POPULATION][MAX_NODES];
 extern Reserve genes_reserves[POPULATION][MAX_SPOTS];
-extern int times[POPULATION][MAX_SPOTS];
 extern int queue_range[MAX_SPOTS];
 extern double fitness[POPULATION];
 extern double crossover_rate;
@@ -88,6 +86,7 @@ extern void local_search_binary(int start, int goal);
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness(int start, int goal);
+extern int debug;
 //extern void serchAll();
 
 

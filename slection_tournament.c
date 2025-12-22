@@ -15,17 +15,16 @@ void selection_tournament(){
     {
         for (int j = 0; j < MAX_NODES; j++)
         {
-            temp[POPULATION][MAX_NODES].vert=-1;
-            temp[POPULATION][MAX_NODES].time=-1;
-            temp[POPULATION][MAX_NODES].dest=-1;
+            temp[i][j].vert=-1;
+            temp[i][j].time=-1;
+            temp[i][j].dest=-1;
             if(j<MAX_SPOTS){
-                temp_reserve[POPULATION][MAX_SPOTS].spot=-1;
-                temp_reserve[POPULATION][MAX_SPOTS].time=-1;
+                temp_reserve[i][j].spot=-1;
+                temp_reserve[i][j].time=-1;
             } 
         }
         temp_fitness[i]=0;
     }
-    
     for (int i = 0; i < POPULATION; i++)
     {
         if(best_fitness < fitness[i]){

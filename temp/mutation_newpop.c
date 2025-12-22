@@ -1,13 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <math.h>
+#include <string.h>
 #include "extern.h"
-
-
-void initialize(int start, int goal){
-    for (int i = 0; i < POPULATION; i++)
+/*
+void mutation_newpop(int start, int goal){
+    double r = (double)rand()/RAND_MAX;
+    if (mutation_rate < r)
     {
+        return;
+        //continue;
+    }
+    for (int i = POPULATION/2; i < POPULATION; i++)
+    {
+        
         int index = 0;
         int n = 1;
         for (int j = 0; j < MAX_NODES; j++){
@@ -57,28 +62,5 @@ void initialize(int start, int goal){
                 genes_reserves[i][j].time = TIMELIMIT / (rand() % 20 + 1); //予約時刻を選択
             }
         }
-        
-        /* index = 0;
-        while (index < MAX_RESERVES )
-        {
-            double r = (double)rand() / RAND_MAX;
-            if(reserve_rate<r){index++;continue;}
-            int reserving_spot = rand() % MAX_SPOTS-1; //ゴールノードだけは含まない
-            for (int j = 0; j < MAX_SPOTS; j++)
-            {
-                if(genes_reserves[i][reserving_spot].spot == -1){break;}
-                reserving_spot+=n;
-                if(reserving_spot < 0){r = MAX_SPOTS-2;}
-                if(MAX_SPOTS-2 < r){r = 1;}
-            }
-            int reserved_spot = rand() % (MAX_SPOTS-reserving_spot-1) + reserving_spot+1; //予約ノード～MAX_SPOTSの間でランダム生成したい
-            genes_reserves[i][reserving_spot].spot = reserved_spot;
-            int t = rand()%(TIMELIMIT);
-            genes_reserves[i][reserving_spot].time = t;
-            index++;
-            n = n * (-1);
-        } */
-        //出発時間制限の導入
-        // とりあえず，等分
-    }    
-}
+    }   
+}*/
