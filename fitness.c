@@ -123,7 +123,7 @@ void calc_fitness(int start, int goal){
         for (int j = 0; j < loops; j++)
         {
             int duration = 0; //時間計算用
-            int satisfy = 0; //満足度計算
+            double satisfy = 0; //満足度計算
             int next_index = 0;
             int pivot_index = start;
             int dest_node = MAX_NODES-1;
@@ -261,9 +261,9 @@ void calc_fitness(int start, int goal){
                 minutes += calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert); 
                 //printf("\ncalc_travel_time4[%d][%d][%d] done",i,j,k);
 
-                duration += minutes;                
-                pivot_index = next_index;
-                satisfy += spots[genes[i][pivot_index].vert].value;
+                duration += minutes;  
+                satisfy += spots[genes[i][pivot_index].vert].value;              
+                pivot_index = next_index;   
             }
            
             //終了後ゴールまでの経路を入れる
@@ -299,10 +299,7 @@ void calc_fitness(int start, int goal){
                     for (int k = 0; k < MAX_NODES; k++)
                     {
                         //printf("%d ", temp_root[k].vert);
-                        if (temp_root[k].vert==-1)
-                        {
-                            break;
-                        }
+                        
                         save_minroot[k].vert = temp_root[k].vert;
                         save_minroot[k].time = temp_root[k].time;
                     }
@@ -320,10 +317,7 @@ void calc_fitness(int start, int goal){
                     }
                     for (int k = 0; k < MAX_NODES; k++)
                     {
-                        if (temp_root[k].vert==-1)
-                        {
-                            break;
-                        }
+                        
                         save_maxroot[k].vert = temp_root[k].vert;
                         save_maxroot[k].time = temp_root[k].time;
                     }
@@ -333,7 +327,7 @@ void calc_fitness(int start, int goal){
                 int index = -1;
                 int flag = 0;
                 //デバック用
-                if(debug){
+                if(0){
                     printf("duration:%d\n",duration);
                     printf("max_root:");
                     for (int k = 0; k < MAX_NODES; k++)
@@ -342,7 +336,7 @@ void calc_fitness(int start, int goal){
                     }
                     printf("\n");
                 }
-                if(debug){
+                if(0){
                     printf("duration:%d\n",duration);
                     printf("temproot:");
                     for (int k = 0; k < MAX_NODES; k++)
@@ -382,7 +376,16 @@ void calc_fitness(int start, int goal){
                 }
                 //printf("\n");
             }
-            
+            if(0){
+                    printf("duration:%d\n",duration);
+                    printf("satisfy %f\n", satisfy);
+                    printf("temproot:");
+                    for (int k = 0; k < MAX_NODES; k++)
+                    {
+                        printf("%d ", temp_root[k].vert);
+                    }
+                    printf("\n");
+            }
             sum+= satisfy;
             sum_duration+=duration;
             sum_satisfy+=satisfy;
@@ -390,7 +393,7 @@ void calc_fitness(int start, int goal){
         //printf("%d\n", i);
         if(i==0&&(!savemode)){
             //printf("%f", sum);
-            //continue;
+            continue;
         }
         fitness[i] = sum / loops;
         //printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisfy/LOOPS);

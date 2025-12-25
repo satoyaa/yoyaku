@@ -4,7 +4,7 @@
 #define MAX_ITERATION 200
 #define POPULATION 100
 #define MAX_SPOTS 30 //観光地数
-#define MAX_NODES 1000 //遺伝子長の最大値
+#define MAX_NODES 9000 //遺伝子長の最大値
 #define MAX_INITIALIZE_NODES 50
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
@@ -82,7 +82,9 @@ extern void selection_tournament();
 extern void mutation_swap();
 extern void mutation_random();
 extern void local_search(int start, int goal);
+extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
+void mutation_newpop(int start, int goal);
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness(int start, int goal);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "extern.h"
-/*
+
 void mutation_newpop(int start, int goal){
     double r = (double)rand()/RAND_MAX;
     if (mutation_rate < r)
@@ -63,4 +63,4 @@ void mutation_newpop(int start, int goal){
             }
         }
     }   
-}*/
+}

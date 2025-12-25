@@ -62,7 +62,7 @@ double mmc_waiting_time1(double lambda, int c, double service_time) {
 
 //局所探索の実装
 //終了時刻までに訪問できる観光地の数を増やす
-void local_search_binary(int start, int goal){
+void local_search_ultimate(int start, int goal){
     //遺伝子長を計算
     int length = 0;
     for (int j = 0; j < MAX_NODES; j++)
@@ -115,11 +115,11 @@ void local_search_binary(int start, int goal){
             }
             if(genes[0][j].dest!=-1 && temp_dest[j]!=-1){//destで終わるように設定
                 dest=temp_dest[j];
-                printf("dest %d length %d j %d\n",dest, length , j);
+                //printf("dest %d length %d j %d\n",dest, length , j);
             }else if(genes[0][j].dest!=-1 && temp_dest[j]==-1&&j<genes[0][j].dest){//destまでindexを飛ばす
-                printf("break at %d %d\n",j, temp_dest[j]);
+                //printf("break at %d %d\n",j, temp_dest[j]);
                 j=genes[0][j].dest;
-                printf("break at %d\n",j);
+                //printf("break at %d\n",j);
             }
             if(genes_reserves[0][genes[0][j].vert].spot != 1){
                 duration += spots[genes[0][j].vert].t+mmc_waiting_time1(spots[genes[0][j].vert].crow, spots[genes[0][j].vert].capacity, spots[genes[0][j].vert].t);
@@ -156,20 +156,20 @@ void local_search_binary(int start, int goal){
     }
 
     int best_index=0;
-    for (int i = 0; i < MAX_RESERVES; i++)
+    for (int i = 0; i < MAX_SPOTS; i++)
     {
-        range=10;
-        for (int j = 0; j < 10; j++)
+        range = 50;
+        for (int j = 0; j < 100; j++)
         {
             if(genes_reserves[best_index][i].spot==0){continue;}
-            for (int k = 0; k < MAX_RESERVES; k++)
+            for (int k = 0; k < MAX_SPOTS; k++)
             {
                 genes_reserves[0][k]=genes_reserves[best_index][k];
                 genes_reserves[1][k]=genes_reserves[best_index][k];
                 genes_reserves[2][k]=genes_reserves[best_index][k];
                 if(k==i){
-                    genes_reserves[1][k].time-=10;
-                    genes_reserves[2][k].time+=10;
+                    genes_reserves[1][k].time-=range;
+                    genes_reserves[2][k].time+=range;
                 }
             }
             calc_fitness(start, goal);
@@ -186,7 +186,8 @@ void local_search_binary(int start, int goal){
                 best_index=0;
             }
             if(range<1){break;}
-            if(best_index==0){range = range*0.5;}
+            //if(best_index==0){range = range-5;}
+            range = range-5;
         }
     }
     calc_fitness(start, goal);
