@@ -1,11 +1,11 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 200
+#define MAX_ITERATION 1000
 #define POPULATION 100
 #define MAX_SPOTS 30 //観光地数
-#define MAX_NODES 9000 //遺伝子長の最大値
-#define MAX_INITIALIZE_NODES 50
+#define MAX_NODES 900 //遺伝子長の最大値
+#define MAX_INITIALIZE_NODES 900
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
@@ -76,6 +76,7 @@ extern double max;
 extern int TIMELIMIT;
 extern int reserve_rate;
 extern int savemode;
+extern int local_search_mode;
 extern void crossover_pmx();
 extern void crossover_twopoint();
 extern void selection_tournament();
@@ -89,6 +90,8 @@ extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness(int start, int goal);
 extern int debug;
+extern double fitnessLog;
+extern double increase_rate;
 //extern void serchAll();
 
 

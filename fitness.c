@@ -87,7 +87,13 @@ void calc_queue_range(){
 }
 
 void calc_fitness(int start, int goal){
-    for (int i = 0; i < POPULATION; i++)
+    int finish = POPULATION;
+    if (local_search_mode)
+    {
+        finish = 3;
+    }
+    
+    for (int i = 0; i < finish; i++)
     {
         //初期化.
         double sum = 0;
@@ -132,7 +138,7 @@ void calc_fitness(int start, int goal){
             Save temp_root[MAX_NODES];
             int use_reserve[MAX_SPOTS];
             //duration += (TIMELIMIT/20 - rand() % (TIMELIMIT/10)); //スタート時間をランダムに設定
-            duration += (rand()%31 - 15); //-15分から+15分の範囲でランダムに変更
+            duration += (rand()%31 - 10); //-15分から+15分の範囲でランダムに変更
             for (int k = 0; k < MAX_SPOTS; k++)
             {
                 use_reserve[k] = genes_reserves[i][k].spot;
@@ -158,9 +164,11 @@ void calc_fitness(int start, int goal){
                 //間違って範囲外にアクセスした場合の対応
                 if(genes[i][pivot_index].vert == -1){break;}
                 
+                if (savemode)
+                {
+                    //printf("%d %d %d\n", duration, pivot_index, next_index);
+                }
                 
-                
-
                 //printf("%d ", duration);
                 temp_root[temp_index].vert = genes[i][pivot_index].vert;
                 temp_root[temp_index].time = genes[i][pivot_index].time;
@@ -195,6 +203,7 @@ void calc_fitness(int start, int goal){
                 //店での所要時間＋待ち時間
                 minutes += wait;
                 minutes += spots[genes[i][pivot_index].vert].t;
+                
                 //もし待ち時間+所要時間が制限時間をオーバーするならゴールに向かう
                 if(duration+minutes > TIMELIMIT){break;}
                 duration+=minutes;
@@ -203,6 +212,7 @@ void calc_fitness(int start, int goal){
                 //printf("\ncalc_queue_range1[%d][%d][%d] done",i,j,k);
                 minutes = 0; //シミュレーションが終わったので時間リセット
 
+                
                 while (1)
                 {
                     //printf("hello\n");
@@ -217,12 +227,14 @@ void calc_fitness(int start, int goal){
                         else{ 
                             k = genes[i][k].dest;
                         }
-                    }else{break;}
+                    }//else{break;}<======================意図不明なbreak，必要かも
+                    
                     //次の観光地が重複する場合読み飛ばし，配列を修正
                     int flag = 0;
                     for (int l = 0; l < MAX_NODES; l++)
                     {
-                        if(temp_root[l].vert==-1||k==MAX_NODES){break;}
+                        //if(1){printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);}
+                        if(temp_root[l].vert==-1||k==MAX_NODES){if(0){printf("None Duplication");}break;}
                         if(genes[i][k].vert==temp_root[l].vert){
                             flag=1;
                             //printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);
@@ -259,7 +271,11 @@ void calc_fitness(int start, int goal){
                 }
                 //移動時間
                 minutes += calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert); 
-                //printf("\ncalc_travel_time4[%d][%d][%d] done",i,j,k);
+                if (savemode)
+                {
+                    //printf("\ncalc_travel_time(%d,%d)=%d",genes[i][pivot_index].vert,genes[i][next_index].vert,calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert));
+                }
+                
 
                 duration += minutes;  
                 satisfy += spots[genes[i][pivot_index].vert].value;              
@@ -290,7 +306,7 @@ void calc_fitness(int start, int goal){
                 //printf("save ans\n");
                 if (satisfy < min || j==0)
                 {
-                    printf("bonjour\n");
+                    //printf("bonjour\n");
                     for (int k = 0; k < MAX_NODES; k++)
                     {
                         save_minroot[k].vert = -1;
@@ -309,7 +325,7 @@ void calc_fitness(int start, int goal){
                 //printf("hello3\n");
                 if (max < satisfy || j==0)
                 {
-                    printf("hello\n");
+                    //printf("hello\n");
                     for (int k = 0; k < MAX_NODES; k++)
                     {
                         save_maxroot[k].vert = -1;
@@ -365,10 +381,6 @@ void calc_fitness(int start, int goal){
                 for (int k = 0; k < MAX_NODES; k++)
                 {
                     //printf("%d ",temp_root[k].vert);
-                    if (temp_root[k].vert==-1)
-                    {
-                            break;
-                    }
                     save_temproot[index][k].vert = temp_root[k].vert;
                     save_temproot[index][k].time = temp_root[k].time;
                     //printf("%d ",save_temproot[index][k].vert);

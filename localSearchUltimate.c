@@ -63,6 +63,7 @@ double mmc_waiting_time1(double lambda, int c, double service_time) {
 //局所探索の実装
 //終了時刻までに訪問できる観光地の数を増やす
 void local_search_ultimate(int start, int goal){
+    printf("local search start: ");
     //遺伝子長を計算
     int length = 0;
     for (int j = 0; j < MAX_NODES; j++)
@@ -139,6 +140,7 @@ void local_search_ultimate(int start, int goal){
             }
         }
     }
+    printf("normalization done. ");
     //正規化した予約時刻で局所探索を計算
     //エリート個体をコピー
     int range = 10;
@@ -154,11 +156,11 @@ void local_search_ultimate(int start, int goal){
             genes_reserves[i][j].time = genes_reserves[0][j].time;  
         }
     }
-
     int best_index=0;
+    local_search_mode = 1;
     for (int i = 0; i < MAX_SPOTS; i++)
     {
-        range = 50;
+        range = TIMELIMIT/4;
         for (int j = 0; j < 100; j++)
         {
             if(genes_reserves[best_index][i].spot==0){continue;}
@@ -187,8 +189,10 @@ void local_search_ultimate(int start, int goal){
             }
             if(range<1){break;}
             //if(best_index==0){range = range-5;}
-            range = range-5;
+            range = range/2;
         }
     }
+    printf("local search done\n");
     calc_fitness(start, goal);
+    local_search_mode = 0;
 }

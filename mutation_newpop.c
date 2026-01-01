@@ -4,15 +4,15 @@
 #include "extern.h"
 
 void mutation_newpop(int start, int goal){
-    double r = (double)rand()/RAND_MAX;
-    if (mutation_rate < r)
-    {
-        return;
-        //continue;
-    }
+    if(increase_rate>0){return;}
     for (int i = POPULATION/2; i < POPULATION; i++)
     {
-        
+        double r = (double)rand()/RAND_MAX;
+        if (mutation_rate < r)
+        {
+            //return;
+            continue;
+        }
         int index = 0;
         int n = 1;
         for (int j = 0; j < MAX_NODES; j++){
