@@ -58,6 +58,11 @@ void readdata(const char * filename){
             spots[nodeCount].reservable = reservable;
             spots[nodeCount].penalty = penalty;
             nodeCount++;
+            if (MAX_SPOTS<=nodeCount)
+            {
+                break;
+            }
+            
         }else {
             // 行フォーマットが合わない場合のデバッグ出力
             printf(" (%d): %s\n", n, line);
