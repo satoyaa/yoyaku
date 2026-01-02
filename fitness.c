@@ -411,4 +411,3 @@ void calc_fitness(int start, int goal){
         //printf("duration is %d, satisfy is %d\n", sum_duration/LOOPS, sum_satisfy/LOOPS);
     }
 }
-

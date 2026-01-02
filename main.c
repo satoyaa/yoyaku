@@ -13,8 +13,8 @@ Save save_maxroot[MAX_NODES];
 Save save_minroot[MAX_NODES];
 Save save_temproot[LOOPS][MAX_NODES];
 int count_temproot[LOOPS];
-double crossover_rate = 0.5;
-double mutation_rate = 1;
+double crossover_rate;
+double mutation_rate;
 int TIMELIMIT;
 double min = INFINITY; //処理の都合で今代入
 double max = -INFINITY; //処理の都合で今代入
@@ -25,7 +25,7 @@ int local_search_mode;
 int useLocalResearch;
 double saveIteration[MAX_ITERATION];
 int debug;
-int count = 10;
+int count;
 int progress;
 double fitnessLog=0;
 double increase_rate=0;
@@ -62,6 +62,7 @@ void ga(int start, int goal){
     savemode = 0;
     local_search_mode = 0;
     printf("initial fitness calculation done.\n");
+    printf("crossover_rate:%f mutation_rate:%f\n", crossover_rate, mutation_rate);
     debug=0;
     for (int i = 0; i < MAX_ITERATION; i++)
     {   
@@ -72,7 +73,7 @@ void ga(int start, int goal){
             debug=0;
         }
         
-        printf("GA:%d/%d iteration:%d seed:%u ",progress, count, i, seed);
+        printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
         //選択
         selection_tournament();
         printf("selection done, fitness is %f, ", fitness[0]);
@@ -91,8 +92,6 @@ void ga(int start, int goal){
         //評価値計算
         calc_fitness(start, goal);
         printf("calculate fitness done.\n");
-        
-        
         
     }
     printf("\n");
@@ -127,270 +126,82 @@ int main(){
         //printf("spot%d value is %d\n", i, spots[i].value);
     }
     
-    //初期個体生成．
-    TIMELIMIT = 120;
-    initialize(0, MAX_SPOTS-1);
+    */
+    //GAのパラメータ調整
+
+    TIMELIMIT = 240;
     
-    //評価値計算．
-    //printf("hello\n");
-    clock_t time1, time2;
-    time1 = clock();   
-    //ga(0, MAX_SPOTS-1);
-    //serchAll(int start)
-    //calc_fitness();
-    time2 = clock();
-    for (int i = 0; i < POPULATION; i++)
-    {
-        //printf("fitness is %f\n", fitness[i]);
-    }
-    //自動実験プログラム
-    int time[] = {60, 120, 180, 240, 300, 360};
-    const char* filename = "root/Result.txt";
+    double crossover_rates[] = {0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0};
+    double mutation_rates[] = {0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0};
+
+    double best_crossover_rate = 0;
+    double best_mutation_rate = 0;
+    double best_fitness = 0;
+    
+    useLocalResearch = 0;
+    reserve_rate = 1;
+    const char* filename = "Result/Adjust.txt";
     FILE* fp = fopen(filename, "w"); 
+    for (int i = 0; i < 7; i++)
+    {
+        for (int j = 0; j < 7; j++)
+        {
+            double sum_best = 0;
+            crossover_rate = crossover_rates[i];
+            mutation_rate = mutation_rates[j];
+            char filename[20];        
+            char line[256]; 
+            if (crossover_rates[i] == 0 && mutation_rates[j] == 0)
+            {
+                count = 1;
+            }else{
+                count = 10;
+            }
+            
+            sprintf(filename, "Result/GaResult_%2f_%2f.txt", crossover_rates[i], mutation_rates[j]);
+            for (int k = 0; k < MAX_ITERATION; k++)
+            {
+                saveIteration[k]=0;
+            }
+            for (int k = 0; k < count; k++)
+            {
+                progress = k;
+                ga(0, MAX_SPOTS-1);
+                sum_best += best;
+            }
+            if(sum_best/count > best_fitness){
+                //スコアを更新
+                best_fitness = sum_best/count;
+                best_crossover_rate = crossover_rates[i];
+                best_mutation_rate = mutation_rates[j];
+            }
+
+            snprintf(line, sizeof(line), "%f %f %f\n",sum_best/count, crossover_rates[i], mutation_rates[j]);
+            fprintf(fp, "%s", line);
+
+            FILE *fpI = fopen(filename, "w"); // 書き込みモードで開く
+            char lineI[256];
+            for (int k = 0; k < MAX_ITERATION; k++)
+            {
+                snprintf(lineI, sizeof(lineI), "%d %f\n",k, saveIteration[k]/count);
+                fprintf(fpI, "%s", lineI);
+            }
+            
+            fclose(fpI);
+        }
+    }     
+    char line[256]; 
+    snprintf(line, sizeof(line), "best : %f, crossover rate : %f, mutation rate : %f\n", best_fitness, best_crossover_rate, best_mutation_rate);
+    fprintf(fp, "%s", line);
+
+    printf("best : %f, crossover rate : %f, mutation rate : %f", best_fitness, best_crossover_rate, best_mutation_rate);
     
-    for (int i = 3; i < 3; i++)
-    {
-        reserve_rate = 1;
-        useLocalResearch = 1;
-        TIMELIMIT = time[i];
-        char line[256];
-        char filenameA[20];
-        char filenameB[20];
-        char filenameC[20];
-        char filenameD[20];
-        char filenameE[20];
-        char filenameF[20];
-        sprintf(filenameA, "root/max_test%d.txt", time[i]);
-        sprintf(filenameB, "root/min_test%d.txt", time[i]);
-        sprintf(filenameC, "root/freqent1_%d.txt", time[i]);
-        sprintf(filenameD, "root/freqent2_%d.txt", time[i]);
-        sprintf(filenameE, "root/freqent3_%d.txt", time[i]);
-        sprintf(filenameF, "root/GaResult_%d.txt", time[i]);
-        double sum_max = 0;
-        double sum_min = 0;
-        double sum_average = 0;
-        double sum_time = 0;
-        Save maxroot[MAX_NODES];
-        Save minroot[MAX_NODES];
-        Save bestFitness[LOOPS][MAX_NODES];
-        int save_count_temproot[LOOPS];
-        double best_max  = -INFINITY;
-        double best_min = INFINITY;
-        double fitness_max = -INFINITY;
-        for (int j = 0; j < MAX_ITERATION; j++)
-        {
-            saveIteration[j]=0;
-        }
-        for (int j = 0; j < count; j++)
-        {
-            printf("%d done\n",j * 10);
-            progress = j;
-            time1 = clock();   
-            ga(0, MAX_SPOTS-1);
-            time2 = clock();   
-            sum_max += max;
-            sum_min += min;
-            sum_average += best;
-            sum_time+=(double)(time2 - time1) / CLOCKS_PER_SEC;
-            if (fitness_max < best)
-            {
-                fitness_max = best;
-                for (int k = 0; k < MAX_NODES; k++)
-                {
-                    minroot[k].vert = save_minroot[k].vert;
-                    minroot[k].time = save_minroot[k].time;
-                }
-                for (int k = 0; k < MAX_NODES; k++)
-                {
-                    maxroot[k].vert = save_maxroot[k].vert;
-                    maxroot[k].time = save_maxroot[k].time;
-                }
-                for (int k = 0; k < LOOPS; k++)
-                {
-                    for (int l = 0; l < MAX_NODES; l++)
-                    {
-                        bestFitness[k][l].vert = save_temproot[k][l].vert;
-                        bestFitness[k][l].time = save_temproot[k][l].time;
-                    }
-                    save_count_temproot[j] = count_temproot[j];
-                }
-            }
-            
-            
-        }
-        //頻出解保存
-        int count_max = -1;
-        int count_second = -1;
-        int count_third = -1;
-        int count_max_index = 1;
-        int count_second_index = 1;
-        int count_third_index = 1;
-        for (int j = 0; j < LOOPS; j++)
-        {
-            if(0 && j<10){
-                printf("%d\n",save_count_temproot[j]);
-            }
-            if(count_max < save_count_temproot[j]){
-                count_third=count_second;
-                count_second=count_max;
-                count_max=save_count_temproot[j];
-                count_third_index=count_second_index;
-                count_second_index=count_max_index;
-                count_max_index=j;}
-            else if (count_second < save_count_temproot[j]){
-                count_third=count_second;
-                count_second=save_count_temproot[j];
-                count_third_index=count_second_index;
-                count_second_index=j;}
-            else if (count_third < save_count_temproot[j]){
-                count_third=save_count_temproot[j];
-                count_third_index=j;}
-        }
-        //ここまで
-        
-        printf("most appeare root probabilty is %d\n",count_max);
-        printf("max index is %d, second index is %d third index is %d",count_max_index, count_second_index, count_third_index);
-        //printf("excuse: %f sec\n", sum_average/count);
-        snprintf(line, sizeof(line), "%dX %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
-        fprintf(fp, "%s", line);
-        save_file(filenameA,maxroot,MAX_NODES);
-        save_file(filenameB,minroot,MAX_NODES);
-        save_file(filenameC,bestFitness[count_max_index],MAX_NODES);
-        save_file(filenameD,bestFitness[count_second_index],MAX_NODES);
-        save_file(filenameE,bestFitness[count_third_index],MAX_NODES);
-        FILE *fpI = fopen(filenameF, "w"); // 書き込みモードで開く
-        char lineI[256];
-        for (int j = 0; j < MAX_ITERATION; j++)
-        {
-            snprintf(lineI, sizeof(lineI), "%d %f\n",j, saveIteration[j]/count);
-            fprintf(fpI, "%s", lineI);
-        }
-        fclose(fpI);
-    }
-    for (int i = 3; i < 4; i++)
-    {
-        reserve_rate = 1;
-        useLocalResearch = 0;
-        TIMELIMIT = time[i];
-        char line[256];
-        char filenameA[20];
-        char filenameB[20];
-        char filenameC[20];
-        char filenameD[20];
-        char filenameE[20];
-        char filenameF[20];
-        sprintf(filenameA, "root/max_testL%d.txt", time[i]);
-        sprintf(filenameB, "root/min_testL%d.txt", time[i]);
-        sprintf(filenameC, "root/freqent1_L%d.txt", time[i]);
-        sprintf(filenameD, "root/freqent2_L%d.txt", time[i]);
-        sprintf(filenameE, "root/freqent3_L%d.txt", time[i]);
-        sprintf(filenameF, "root/GaResult_L%d.txt", time[i]);
-        double sum_max = 0;
-        double sum_min = 0;
-        double sum_average = 0;
-        double sum_time = 0;
-        Save maxroot[MAX_NODES];
-        Save minroot[MAX_NODES];
-        Save bestFitness[LOOPS][MAX_NODES];
-        int save_count_temproot[LOOPS];
-        double best_max  = -INFINITY;
-        double best_min = INFINITY;
-        double fitness_max = -INFINITY;
-        for (int j = 0; j < MAX_ITERATION; j++)
-        {
-            saveIteration[j]=0;
-        }
-        for (int j = 0; j < count; j++)
-        {
-            printf("%d done\n",j * 10);
-            progress = j;
-            time1 = clock();   
-            ga(0, MAX_SPOTS-1);
-            time2 = clock();   
-            sum_max += max;
-            sum_min += min;
-            sum_average += best;
-            sum_time+=(double)(time2 - time1) / CLOCKS_PER_SEC;
-            if (fitness_max < best)
-            {
-                fitness_max = best;
-                for (int k = 0; k < MAX_NODES; k++)
-                {
-                    minroot[k].vert = save_minroot[k].vert;
-                    minroot[k].time = save_minroot[k].time;
-                }
-                for (int k = 0; k < MAX_NODES; k++)
-                {
-                    maxroot[k].vert = save_maxroot[k].vert;
-                    maxroot[k].time = save_maxroot[k].time;
-                }
-                for (int k = 0; k < LOOPS; k++)
-                {
-                    for (int l = 0; l < MAX_NODES; l++)
-                    {
-                        bestFitness[k][l].vert = save_temproot[k][l].vert;
-                        bestFitness[k][l].time = save_temproot[k][l].time;
-                    }
-                    save_count_temproot[j] = count_temproot[j];
-                }
-            }
-            
-            
-        }
-        //頻出解保存
-        int count_max = -1;
-        int count_second = -1;
-        int count_third = -1;
-        int count_max_index = 1;
-        int count_second_index = 1;
-        int count_third_index = 1;
-        for (int j = 0; j < LOOPS; j++)
-        {
-            if(0 && j<10){
-                printf("%d\n",save_count_temproot[j]);
-            }
-            if(count_max < save_count_temproot[j]){
-                count_third=count_second;
-                count_second=count_max;
-                count_max=save_count_temproot[j];
-                count_third_index=count_second_index;
-                count_second_index=count_max_index;
-                count_max_index=j;}
-            else if (count_second < save_count_temproot[j]){
-                count_third=count_second;
-                count_second=save_count_temproot[j];
-                count_third_index=count_second_index;
-                count_second_index=j;}
-            else if (count_third < save_count_temproot[j]){
-                count_third=save_count_temproot[j];
-                count_third_index=j;}
-        }
-        //ここまで
-        
-        printf("most appeare root probabilty is %d\n",count_max);
-        printf("max index is %d, second index is %d third index is %d",count_max_index, count_second_index, count_third_index);
-        //printf("excuse: %f sec\n", sum_average/count);
-        snprintf(line, sizeof(line), "%d %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
-        fprintf(fp, "%s", line);
-        save_file(filenameA,maxroot,MAX_NODES);
-        save_file(filenameB,minroot,MAX_NODES);
-        save_file(filenameC,bestFitness[count_max_index],MAX_NODES);
-        save_file(filenameD,bestFitness[count_second_index],MAX_NODES);
-        save_file(filenameE,bestFitness[count_third_index],MAX_NODES);
-        FILE *fpI = fopen(filenameF, "w"); // 書き込みモードで開く
-        char lineI[256];
-        for (int j = 0; j < MAX_ITERATION; j++)
-        {
-            snprintf(lineI, sizeof(lineI), "%d %f\n",j, saveIteration[j]/count);
-            fprintf(fpI, "%s", lineI);
-        }
-        fclose(fpI);
-    }
     fclose(fp);
-    
+    /*
     printf("excuse: %f sec\n", (double)(time2 - time1) / CLOCKS_PER_SEC);
     printf("bye\n");
     //解の保存．
     printf("min:%f max:%f\n", min, max);
+    */
     return(0);
 }
