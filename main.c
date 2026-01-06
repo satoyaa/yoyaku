@@ -13,8 +13,8 @@ Save save_maxroot[MAX_NODES];
 Save save_minroot[MAX_NODES];
 Save save_temproot[LOOPS][MAX_NODES];
 int count_temproot[LOOPS];
-double crossover_rate = 0.5;
-double mutation_rate = 1;
+double crossover_rate = 0.3;
+double mutation_rate = 0.5;
 int TIMELIMIT;
 double min = INFINITY; //処理の都合で今代入
 double max = -INFINITY; //処理の都合で今代入
@@ -142,14 +142,14 @@ int main(){
         //printf("fitness is %f\n", fitness[i]);
     }
     //自動実験プログラム
-    int time[] = {60, 120, 180, 240, 300, 360};
+    int time[] = {60, 180, 300};
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 3; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         reserve_rate = 1;
-        useLocalResearch = 1;
+        useLocalResearch = 0;
         TIMELIMIT = time[i];
         char line[256];
         char filenameA[20];
@@ -265,10 +265,10 @@ int main(){
         }
         fclose(fpI);
     }
-    for (int i = 3; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
         reserve_rate = 1;
-        useLocalResearch = 0;
+        useLocalResearch = 1;
         TIMELIMIT = time[i];
         char line[256];
         char filenameA[20];

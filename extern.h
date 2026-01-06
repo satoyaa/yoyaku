@@ -1,7 +1,7 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 1000
+#define MAX_ITERATION 200
 #define POPULATION 100
 #define MAX_SPOTS 30 //観光地数
 #define MAX_NODES 900 //遺伝子長の最大値

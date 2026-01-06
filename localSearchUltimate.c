@@ -93,10 +93,15 @@ void local_search_ultimate(int start, int goal){
     int dest; //満足度計算
     int done = 1;   
     int temp_dest[MAX_NODES];
+    int temp_reserve[MAX_SPOTS];
     for (int j = 0; j < length; j++){
         temp_dest[j] = genes[0][j].dest;
     }
+    for (int j = 0; j < MAX_SPOTS; j++){
+        temp_reserve[j] = 0;
+    }
     int a = 0;
+
     
     
     //予約時刻の正規化
@@ -132,6 +137,7 @@ void local_search_ultimate(int start, int goal){
                 continue;
             } //予約観光地でなければスキップ
             genes_reserves[0][genes[0][j].vert].time = duration;
+            temp_reserve[genes[0][j].vert] = genes_reserves[0][genes[0][j].vert].spot;
             duration += spots[genes[0][j].vert].t+mmc_waiting_time1(spots[genes[0][j].vert].crow, spots[genes[0][j].vert].capacity, spots[genes[0][j].vert].t);
             duration += calc_travel_time2(genes[0][j].vert, genes[0][j+1].vert);
             if (j==length-1)
@@ -140,11 +146,18 @@ void local_search_ultimate(int start, int goal){
             }
         }
     }
+    for (int  j = 0; j < MAX_SPOTS; j++)
+    {
+        //使われない予約を消去
+        genes_reserves[0][genes[0][j].vert].spot = temp_reserve[genes[0][j].vert];
+        if(genes_reserves[0][genes[0][j].vert].spot==0){genes_reserves[0][genes[0][j].vert].time=0;}
+    }
+    
     printf("normalization done. ");
     //正規化した予約時刻で局所探索を計算
     //エリート個体をコピー
     int range = 10;
-    for (int i = 0; i < POPULATION; i++)
+    for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < MAX_NODES; j++)
         {

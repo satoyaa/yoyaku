@@ -130,7 +130,7 @@ void calc_fitness(int start, int goal){
         {
             int duration = 0; //時間計算用
             double satisfy = 0; //満足度計算
-            int next_index = 0;
+            int next_index = 1;
             int pivot_index = start;
             int dest_node = MAX_NODES-1;
             int temp_index = 0;
@@ -138,7 +138,12 @@ void calc_fitness(int start, int goal){
             Save temp_root[MAX_NODES];
             int use_reserve[MAX_SPOTS];
             //duration += (TIMELIMIT/20 - rand() % (TIMELIMIT/10)); //スタート時間をランダムに設定
-            duration += (rand()%31 - 10); //-15分から+15分の範囲でランダムに変更
+            //duration += (rand()%31 - 10); //-15分から+15分の範囲でランダムに変更
+            int event = 0;
+            event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
+            //event = exp(rand())*(TIMELIMIT-calc_travel_time(start, goal)); //短い時間が現れやすい
+            //event = 1-exp(rand())*(TIMELIMIT-calc_travel_time(start, goal)); //長い時間が現れやすい
+            duration += event;
             for (int k = 0; k < MAX_SPOTS; k++)
             {
                 use_reserve[k] = genes_reserves[i][k].spot;
@@ -157,12 +162,20 @@ void calc_fitness(int start, int goal){
             temp_index++;
             //待ち時間をシミュレーション
             calc_queue_range();
+            expect = duration + calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert) + spots[genes[i][next_index].vert].t + calc_travel_time(genes[i][next_index].vert, goal);
+            //printf("\ncalc_travel_time3[%d][%d][%d] done",i,j,k);
+            //出発前にゴールに間に合うか判定 間に合わない場合は終了
+            int skip = 0;
+            if(expect > TIMELIMIT){
+                skip = 1;
+            }
             //評価値計算のメイン
             for (int k = 1; k < MAX_NODES-1; k++)
             {   
                 
                 //間違って範囲外にアクセスした場合の対応
                 if(genes[i][pivot_index].vert == -1){break;}
+                if(skip){break;}
                 
                 if (savemode)
                 {
