@@ -34,6 +34,33 @@ void mutation_swap(){
             genes[i][start+j].vert = genes[i][goal-j].vert;
             genes[i][goal-j].vert = temp;
         }
+        //予約観光地の反転
+        start = rand()%MAX_SPOTS;
+        goal = rand()%MAX_SPOTS;
+        if(goal<start){int t=goal;goal=start;start=t;}
+        //printf("%d %d %d\n",length, goal, start);
+        for (int j = 0; j < (goal-start)/2; j++)
+        {
+            if(1-reserve_rate){break;}
+            temp = genes_reserves[i][start+j].spot;
+            genes_reserves[i][start+j].spot = genes_reserves[i][goal-j].spot;
+            genes_reserves[i][goal-j].spot = temp;
+            temp = genes_reserves[i][start+j].time;
+            genes_reserves[i][start+j].time = genes_reserves[i][goal-j].time;
+            genes_reserves[i][goal-j].time = temp;
+            if (spots[start+j].reservable==0)
+            {
+                genes_reserves[i][start+j].spot=0;
+                genes_reserves[i][start+j].time=0;
+            }
+            if (spots[start+j].reservable==0)
+            {
+                genes_reserves[i][goal-j].spot=0;
+                genes_reserves[i][goal-j].time=0;
+            }
+        }
+
+
         /* //予約の整合性を修正する．
         for (int j = 0; j < MAX_SPOTS; j++)
         {

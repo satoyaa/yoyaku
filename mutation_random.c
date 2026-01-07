@@ -32,17 +32,14 @@ void mutation_random(){
             }
             int index = rand() % (length-1);
             int vert = rand() % MAX_SPOTS;
-            int time = TIMELIMIT / (rand() % 6 + 1); //分岐時刻を選択
-            int dest = rand() % (length-(index+1)) + (index+1); // 選択した観光地より後ろの観光地を選択
             genes[i][index].vert = vert;
-            genes[i][index].time = time;
-            genes[i][index].dest = dest;
             if(1-reserve_rate){continue;}
             int r = rand() % 2;
             int index_reserve = rand() % MAX_SPOTS;
             if (r==1 && spots[genes[i][index].vert].reservable==1)
             {
                 genes_reserves[i][index_reserve].spot = 1-genes_reserves[i][index_reserve].spot;
+                if(genes_reserves[i][index_reserve].spot==0){genes_reserves[i][index_reserve].time=0;}
                 genes_reserves[i][index_reserve].time = TIMELIMIT / (rand() % 6 + 1); //予約時刻を選択
             }
         }

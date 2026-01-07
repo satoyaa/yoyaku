@@ -86,6 +86,15 @@ void calc_queue_range(){
     }
 }
 
+int sampling(int start, int goal){
+    double u = (double)rand()/RAND_MAX;  // 0から1の一様分布からのサンプリング
+    if (u == 0.0) u = 1e-10;
+    double lambda_param = -log(1-0.95)/(TIMELIMIT-calc_travel_time(start, goal)); //95%が収まる設定
+    int x = -log(1 - u) / lambda_param;  // 逆関数法で指数分布に変換
+    if(x >= TIMELIMIT-calc_travel_time(start, goal)){x=TIMELIMIT-calc_travel_time(start, goal);}
+    return x;
+}
+
 void calc_fitness(int start, int goal){
     int finish = POPULATION;
     if (local_search_mode)
@@ -140,10 +149,13 @@ void calc_fitness(int start, int goal){
             //duration += (TIMELIMIT/20 - rand() % (TIMELIMIT/10)); //スタート時間をランダムに設定
             //duration += (rand()%31 - 10); //-15分から+15分の範囲でランダムに変更
             int event = 0;
-            event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
-            //event = exp(rand())*(TIMELIMIT-calc_travel_time(start, goal)); //短い時間が現れやすい
-            //event = 1-exp(rand())*(TIMELIMIT-calc_travel_time(start, goal)); //長い時間が現れやすい
+            //event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
+            //event = exp(-(double)rand())*(TIMELIMIT-calc_travel_time(start, goal)); //短い時間が現れやすい１
+            event = sampling(start, goal); //短い時間が現れやすい
+            //printf("%d ", event);
+            //event = TIMELIMIT-calc_travel_time(start, goal)-sampling(start, goal); //長い時間が現れやすい
             duration += event;
+            
             for (int k = 0; k < MAX_SPOTS; k++)
             {
                 use_reserve[k] = genes_reserves[i][k].spot;
@@ -291,9 +303,13 @@ void calc_fitness(int start, int goal){
                 
 
                 duration += minutes;  
-                satisfy += spots[genes[i][pivot_index].vert].value;              
+                satisfy += spots[genes[i][pivot_index].vert].value;   
+                if(i==0){
+                    //printf("loops:%d satisfy:%f %d %d\n",j, satisfy, genes[i][pivot_index].vert, spots[genes[i][pivot_index].vert].value);        
+                }                  
                 pivot_index = next_index;   
             }
+            
            
             //終了後ゴールまでの経路を入れる
             duration+=calc_travel_time(genes[i][pivot_index].vert, goal);
@@ -312,6 +328,7 @@ void calc_fitness(int start, int goal){
             {
                 satisfy -= (use_reserve[k] * 100);
             }
+            
             
             if (savemode && i==0)
             {

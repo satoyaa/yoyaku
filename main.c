@@ -53,8 +53,9 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     
-    unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
-    //unsigned int seed = 1766965875; //デバッグ用に固定した値を出したい 1000でバグる
+    //unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
+    unsigned int seed = 1767775633; //デバッグ用に固定した値を出したい 1000でバグる
+    //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
     printf("initialization done.\n");
@@ -72,7 +73,7 @@ void ga(int start, int goal){
             debug=0;
         }
         
-        printf("GA:%d/%d iteration:%d seed:%u ",progress, count, i, seed);
+        printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
         //選択
         selection_tournament();
         printf("selection done, fitness is %f, ", fitness[0]);
@@ -84,9 +85,13 @@ void ga(int start, int goal){
         crossover_twopoint();
         printf("crossover done, ");
         //突然変異
+        printf("a ");
         mutation_swap();
-        //mutation_random();
-        mutation_newpop(start, goal);
+        printf("b ");
+        mutation_random();
+        printf("c ");
+        //mutation_newpop(start, goal);
+        mutation_NewBranch();
         printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
@@ -95,7 +100,6 @@ void ga(int start, int goal){
         
         
     }
-    printf("\n");
     selection_tournament();
     calc_fitness(start, goal);
     //local_search(start, goal);
@@ -146,7 +150,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 0; i < 3; i++)
+    for (int i = 1; i < 2; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
@@ -181,7 +185,6 @@ int main(){
         }
         for (int j = 0; j < count; j++)
         {
-            printf("%d done\n",j * 10);
             progress = j;
             time1 = clock();   
             ga(0, MAX_SPOTS-1);
@@ -265,7 +268,7 @@ int main(){
         }
         fclose(fpI);
     }
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 0; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 1;
@@ -300,7 +303,6 @@ int main(){
         }
         for (int j = 0; j < count; j++)
         {
-            printf("%d done\n",j * 10);
             progress = j;
             time1 = clock();   
             ga(0, MAX_SPOTS-1);

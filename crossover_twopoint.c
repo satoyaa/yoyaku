@@ -45,6 +45,7 @@ void crossover_twopoint(){
         int index2 = 0;
         if(end1<start1){int temp = end1;end1 = start1;start1 = temp;}
         if(end2<start2){int temp = end2;end2 = start2;start2 = temp;}
+        //一つ目の交叉点までをコピー
         for (int j = 0; j < start1; j++)
         {
             temp1[j].vert=genes[i][j].vert;
@@ -59,12 +60,14 @@ void crossover_twopoint(){
             temp2[j].dest=genes[i+1][j].dest;
             index2+=1;
         }
+        //2つ目の交叉点までをコピー
         for (int j = start2; j < end2; j++)
         {
             if(index1>=MAX_NODES){ break;}
             temp1[index1].vert = genes[i][j].vert;
             temp1[index1].time = genes[i][j].time;
-            temp1[index1].dest = genes[i][j].dest+start1;
+            temp1[index1].dest = genes[i][j].dest-start2+index1;
+            if(genes[i+1][j].dest==-1){temp1[index1].dest = genes[i][j].dest;}
             index1+=1;
         }
         for (int j = start1; j < end1; j++)
@@ -72,15 +75,19 @@ void crossover_twopoint(){
             if(index2>=MAX_NODES){break;}
             temp2[index2].vert = genes[i+1][j].vert;
             temp2[index2].time = genes[i+1][j].time;
-            temp2[index2].dest = genes[i+1][j].dest+start2;
+            temp2[index2].dest = genes[i+1][j].dest-start1+index2;
+            if(genes[i+1][j].dest==-1){temp2[index2].dest = genes[i+1][j].dest;}
+            //printf("crossover:%d %d %d %d\n",genes[i+1][j].dest, start1, index2, temp2[index2].dest);
             index2+=1;
         }
+        //最後前の交叉点までをコピー
         for (int j = end1; j < MAX_NODES; j++)
         {
             if (index1>=MAX_NODES){break;}
             temp1[index1].vert = genes[i][j].vert;
             temp1[index1].time = genes[i][j].time;
-            temp1[index1].dest = genes[i][j].dest+start1+end2-start2;
+            temp1[index1].dest = genes[i][j].dest-end1+index1;
+            if(genes[i+1][j].dest==-1){temp1[index1].dest = genes[i][j].dest;}
             index1+=1;
         }
         for (int j = end2; j < MAX_NODES; j++)
@@ -88,7 +95,8 @@ void crossover_twopoint(){
             if (index2>=MAX_NODES){break;}
             temp2[index2].vert = genes[i+1][j].vert;
             temp2[index2].time = genes[i+1][j].time;
-            temp2[index2].dest = genes[i+1][j].dest+start2+end1-start1;
+            temp2[index2].dest = genes[i+1][j].dest-end2+index2;
+            if(genes[i+1][j].dest==-1){temp2[index2].dest = genes[i+1][j].dest;}
             index2+=1;
         }
         //範囲外への分岐を修正
