@@ -23,20 +23,48 @@ void mutation_NewBranch(){
         {
             continue;
         }
-        int points = rand() % length; // 分岐点を決定
+
         //分岐点から観光地数までからランダムにブランチsizeを決定
         int max_branch_size = MAX_SPOTS;
-        if(MAX_NODES-1-points < MAX_SPOTS){
-            max_branch_size = MAX_NODES-1-points;
+        int isDelete = (double)rand() / RAND_MAX;
+        int points = 0;
+        int branchSize = 0;
+        if(isDelete < 0.5){
+            int deletePoint = rand() % (MAX_SPOTS-1)+1;
+            int deletePointCount = 0;
+            int deletePointIndex = 0;
+            
+            for (int j = 0; j < length; j++)
+            {
+                
+                if (genes[i][j].dest != -1)
+                {
+                    deletePointCount+=1;
+                }
+                if(deletePointCount>=deletePoint){
+                    points = j;
+                    break;
+                }
+                if(j==length-1)
+                {
+                    if(deletePointCount!=0){
+                        j=-1;
+                    }else{
+                        break;
+                    }
+                }
+            }
+            branchSize = 0;
         }
-        int branchSize = rand() % max_branch_size;
-        if(genes[i][points].dest!=-1){
-            int isDelete = (double)rand() / RAND_MAX;
-            if(isDelete < 0.5){branchSize = 0;}
-            else{
-                branchSize = genes[i][points].dest-points;
+        else{
+            points = rand() % length; // 分岐点を決定
+            if(0 < MAX_NODES-1-points && MAX_NODES-1-points < MAX_SPOTS){
+                max_branch_size = MAX_NODES-1-points;
+                branchSize = rand() % max_branch_size;
             }
         }
+        
+        //printf("hello7 ");
         //printf("%d %d %d\n", genes[i][points].dest, points, branchSize);
         //終了地点が分岐地点以降のブランチの目的地観光地+ブランチsize
         Gene temp[MAX_NODES];
@@ -44,7 +72,6 @@ void mutation_NewBranch(){
         {
             temp[j].vert = -1; temp[j].time = 100000; temp[j].dest = -1;
         }
-        
         for (int j = 0; j < points+1; j++)
         {
             temp[j].vert = genes[i][j].vert; temp[j].time = genes[i][j].time; temp[j].dest = genes[i][j].dest;

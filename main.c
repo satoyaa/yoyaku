@@ -53,8 +53,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     
-    //unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
-    unsigned int seed = 1767775633; //デバッグ用に固定した値を出したい 1000でバグる
+    unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
+    //unsigned int seed = 1767856130; //デバッグ用に固定した値を出したい 1000でバグる
     //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
@@ -147,7 +147,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 0; i < 3; i++)
+    for (int i = 1; i < 2; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
