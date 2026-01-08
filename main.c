@@ -85,11 +85,8 @@ void ga(int start, int goal){
         crossover_twopoint();
         printf("crossover done, ");
         //突然変異
-        printf("a ");
         mutation_swap();
-        printf("b ");
         mutation_random();
-        printf("c ");
         //mutation_newpop(start, goal);
         mutation_NewBranch();
         printf("mutation done, ");
@@ -150,7 +147,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 1; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
@@ -268,7 +265,7 @@ int main(){
         }
         fclose(fpI);
     }
-    for (int i = 0; i < 0; i++)
+    for (int i = 3; i < 3; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 1;
