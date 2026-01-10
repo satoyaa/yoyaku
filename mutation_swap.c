@@ -6,11 +6,7 @@
 void mutation_swap(){
     for (int i = 1; i < POPULATION; i++)
     {
-        double r = (double)rand()/RAND_MAX;
-        if (mutation_rate < r)
-        {
-            continue;
-        }
+        
         //遺伝子長を計算
         int length = 0;
         for (int j = 0; j < MAX_NODES; j++)
@@ -22,7 +18,17 @@ void mutation_swap(){
         {
             continue;
         }
-        int start = rand()%length;
+        int start = 0;
+        for (int j = 0; j < length; j++)
+        {
+            double r = (double)rand()/RAND_MAX;
+            if (mutation_rateS < r)
+            {
+                start = j;
+                break;
+            }
+        }
+        
         int goal = rand()%length;
         if(goal<start){int t=goal;goal=start;start=t;}
         int temp;
@@ -34,6 +40,33 @@ void mutation_swap(){
             genes[i][start+j].vert = genes[i][goal-j].vert;
             genes[i][goal-j].vert = temp;
         }
+        //予約観光地の反転
+        start = rand()%MAX_SPOTS;
+        goal = rand()%MAX_SPOTS;
+        if(goal<start){int t=goal;goal=start;start=t;}
+        //printf("%d %d %d\n",length, goal, start);
+        for (int j = 0; j < (goal-start)/2; j++)
+        {
+            if(1-reserve_rate){break;}
+            temp = genes_reserves[i][start+j].spot;
+            genes_reserves[i][start+j].spot = genes_reserves[i][goal-j].spot;
+            genes_reserves[i][goal-j].spot = temp;
+            temp = genes_reserves[i][start+j].time;
+            genes_reserves[i][start+j].time = genes_reserves[i][goal-j].time;
+            genes_reserves[i][goal-j].time = temp;
+            if (spots[start+j].reservable==0)
+            {
+                genes_reserves[i][start+j].spot=0;
+                genes_reserves[i][start+j].time=0;
+            }
+            if (spots[start+j].reservable==0)
+            {
+                genes_reserves[i][goal-j].spot=0;
+                genes_reserves[i][goal-j].time=0;
+            }
+        }
+
+
         /* //予約の整合性を修正する．
         for (int j = 0; j < MAX_SPOTS; j++)
         {

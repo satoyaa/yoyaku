@@ -7,12 +7,8 @@ void mutation_newpop(int start, int goal){
     if(increase_rate>0){return;}
     for (int i = POPULATION/2; i < POPULATION; i++)
     {
-        double r = (double)rand()/RAND_MAX;
-        if (mutation_rate < r)
-        {
-            //return;
-            continue;
-        }
+        int r = rand()% RAND_MAX;
+        if( r > mutation_rateN){continue;}
         int index = 0;
         int n = 1;
         for (int j = 0; j < MAX_NODES; j++){
@@ -38,8 +34,21 @@ void mutation_newpop(int start, int goal){
         for (int j = 0; j < branches; j++)
         {
             if(end<=1){break;}
+            
+            
             int spot = rand() % (end-1); //スタート地点からゴールの直前までの中から観光地を選択
-            int dest = rand() % (end-(spot+1)) + (spot + 1); // 選択した観光地より後ろの観光地を選択
+            int branchEnd = end;
+            for (int k = 0; k < spot; k++)
+            {
+                if (genes[i][k].dest == -1)
+                {
+                    continue;
+                }
+                branchEnd = genes[i][k].dest;
+            }
+            if(branchEnd-spot < 3){continue;}
+            //printf("%d %d %d %d\n", branchEnd, spot);
+            int dest = rand() % (branchEnd-(spot+1)) + (spot + 1); // 選択した観光地より後ろの観光地を選択
             int time = TIMELIMIT / (rand() % 6 + 1); //出発時刻を選択
             //printf("%d %d %d %d\n", end, spot, dest, time);
             genes[i][spot].dest = dest;
@@ -51,7 +60,17 @@ void mutation_newpop(int start, int goal){
             genes_reserves[i][j].spot = 0;
             genes_reserves[i][j].time = 0;
         }
+
+
+        if(1-reserve_rate){break;}
+        int reserve = rand() % MAX_SPOTS;
+        if (spots[genes[i][reserve].vert].reservable==1)
+        {
+            genes_reserves[i][reserve].spot = 1;
+            genes_reserves[i][reserve].time = TIMELIMIT / (rand() % 20 + 1); //予約時刻を選択
+        }
         
+        /*
         for (int j = 0; j < MAX_SPOTS; j++)
         {
             if(1-reserve_rate){break;}
@@ -61,6 +80,6 @@ void mutation_newpop(int start, int goal){
                 genes_reserves[i][j].spot = 1;
                 genes_reserves[i][j].time = TIMELIMIT / (rand() % 20 + 1); //予約時刻を選択
             }
-        }
+        }*/
     }   
 }

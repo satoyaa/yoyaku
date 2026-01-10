@@ -14,7 +14,9 @@ Save save_minroot[MAX_NODES];
 Save save_temproot[LOOPS][MAX_NODES];
 int count_temproot[LOOPS];
 double crossover_rate;
-double mutation_rate;
+double mutation_rateS = 0.05;
+double mutation_rateR = 0.05;
+double mutation_rateN;
 int TIMELIMIT;
 double min = INFINITY; //処理の都合で今代入
 double max = -INFINITY; //処理の都合で今代入
@@ -62,7 +64,7 @@ void ga(int start, int goal){
     savemode = 0;
     local_search_mode = 0;
     printf("initial fitness calculation done.\n");
-    printf("crossover_rate:%f mutation_rate:%f\n", crossover_rate, mutation_rate);
+    printf("crossover_rate:%f mutation_rate:%f\n", crossover_rate, mutation_rateN);
     debug=0;
     for (int i = 0; i < MAX_ITERATION; i++)
     {   
@@ -84,7 +86,9 @@ void ga(int start, int goal){
         //crossover_pmx();
         crossover_twopoint();
         printf("crossover done, ");
+        
         //突然変異
+        //double r = rand()/RAND_MAX;
         mutation_swap();
         //mutation_random();
         mutation_newpop(start, goal);
@@ -129,10 +133,10 @@ int main(){
     */
     //GAのパラメータ調整
 
-    TIMELIMIT = 240;
+    TIMELIMIT = 180;
     
-    double crossover_rates[] = {0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0};
-    double mutation_rates[] = {0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0};
+    double crossover_rates[] = {0.1, 0.3, 0.5, 0.7};
+    double mutation_rates[] = {1.0, 0.5, 0.2, 0.05};
 
     double best_crossover_rate = 0;
     double best_mutation_rate = 0;
@@ -141,23 +145,18 @@ int main(){
     useLocalResearch = 0;
     reserve_rate = 1;
     const char* filename = "Result/Adjust.txt";
+    count = 10;
     FILE* fp = fopen(filename, "w"); 
-    for (int i = 0; i < 7; i++)
+    for (int i = 1; i < 4; i++)
     {
-        for (int j = 0; j < 7; j++)
+        for (int j = 0; j < 4; j++)
         {
+            if(i==0&&j==0){continue;}
             double sum_best = 0;
             crossover_rate = crossover_rates[i];
-            mutation_rate = mutation_rates[j];
+            mutation_rateN = mutation_rates[j];
             char filename[20];        
             char line[256]; 
-            if (crossover_rates[i] == 0 && mutation_rates[j] == 0)
-            {
-                count = 1;
-            }else{
-                count = 10;
-            }
-            
             sprintf(filename, "Result/GaResult_%2f_%2f.txt", crossover_rates[i], mutation_rates[j]);
             for (int k = 0; k < MAX_ITERATION; k++)
             {

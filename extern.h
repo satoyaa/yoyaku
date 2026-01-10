@@ -1,11 +1,11 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 200
-#define POPULATION 100 //絶対に偶数
+#define MAX_ITERATION 100
+#define POPULATION 100
 #define MAX_SPOTS 30 //観光地数
 #define MAX_NODES 900 //遺伝子長の最大値
-#define MAX_INITIALIZE_NODES 900
+#define MAX_INITIALIZE_NODES MAX_NODES
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
@@ -66,7 +66,9 @@ extern Reserve genes_reserves[POPULATION][MAX_SPOTS];
 extern int queue_range[MAX_SPOTS];
 extern double fitness[POPULATION];
 extern double crossover_rate;
-extern double mutation_rate;
+extern double mutation_rateS;
+extern double mutation_rateR;
+extern double mutation_rateN;
 extern Save save_maxroot[MAX_NODES];
 extern Save save_minroot[MAX_NODES];
 extern Save save_temproot[LOOPS][MAX_NODES];
@@ -82,6 +84,7 @@ extern void crossover_twopoint();
 extern void selection_tournament();
 extern void mutation_swap();
 extern void mutation_random();
+extern void mutation_NewBranch();
 extern void local_search(int start, int goal);
 extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
