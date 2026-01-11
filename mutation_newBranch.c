@@ -8,29 +8,32 @@ void mutation_NewBranch(){
     for (int i = 1; i < POPULATION; i++)
     {
         double r = (double)rand()/RAND_MAX;
-        if (mutation_rate < r)
+        if (mutation_rateN < r)
         {
             continue;
         }
         //１～遺伝子長までにランダムに分岐点を決定
         int length = 0;
+        int branches = 0;
         for (int j = 0; j < MAX_NODES; j++)
         {
             if(genes[i][j].vert==-1){break;}
+            if(genes[i][j].dest!=-1){
+                branches+=1;
+            }
             length+=1;
         }
         if (length <= 2)
         {
             continue;
         }
-
         //分岐点から観光地数までからランダムにブランチsizeを決定
         int max_branch_size = MAX_SPOTS;
         int isDelete = (double)rand() / RAND_MAX;
         int points = 0;
         int branchSize = 0;
-        if(isDelete < 0.5){
-            int deletePoint = rand() % (MAX_SPOTS-1)+1;
+        if(isDelete < 0.5 && 0 < branches ){            
+            int deletePoint = rand() % branches+1;
             int deletePointCount = 0;
             int deletePointIndex = 0;
             
@@ -63,8 +66,6 @@ void mutation_NewBranch(){
                 branchSize = rand() % max_branch_size;
             }
         }
-        
-        //printf("hello7 ");
         //printf("%d %d %d\n", genes[i][points].dest, points, branchSize);
         //終了地点が分岐地点以降のブランチの目的地観光地+ブランチsize
         Gene temp[MAX_NODES];

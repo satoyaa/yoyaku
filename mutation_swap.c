@@ -6,11 +6,7 @@
 void mutation_swap(){
     for (int i = 1; i < POPULATION; i++)
     {
-        double r = (double)rand()/RAND_MAX;
-        if (mutation_rate < r)
-        {
-            continue;
-        }
+        
         //遺伝子長を計算
         int length = 0;
         for (int j = 0; j < MAX_NODES; j++)
@@ -22,7 +18,17 @@ void mutation_swap(){
         {
             continue;
         }
-        int start = rand()%length;
+        int start = 0;
+        for (int j = 0; j < length; j++)
+        {
+            double r = (double)rand()/RAND_MAX;
+            if (mutation_rateS < r)
+            {
+                start = j;
+                break;
+            }
+        }
+        
         int goal = rand()%length;
         if(goal<start){int t=goal;goal=start;start=t;}
         int temp;

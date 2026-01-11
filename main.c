@@ -13,8 +13,10 @@ Save save_maxroot[MAX_NODES];
 Save save_minroot[MAX_NODES];
 Save save_temproot[LOOPS][MAX_NODES];
 int count_temproot[LOOPS];
-double crossover_rate = 0.3;
-double mutation_rate = 0.5;
+double crossover_rate = 0.5;
+double mutation_rateS = 0.05;
+double mutation_rateR = 0.05;
+double mutation_rateN = 0.2;
 int TIMELIMIT;
 double min = INFINITY; //処理の都合で今代入
 double max = -INFINITY; //処理の都合で今代入
@@ -53,8 +55,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     
-    unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
-    //unsigned int seed = 1767856130; //デバッグ用に固定した値を出したい 1000でバグる
+    //unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
+    unsigned int seed = 1768095067; //デバッグ用に固定した値を出したい 1000でバグる
     //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
@@ -72,7 +74,6 @@ void ga(int start, int goal){
         }else{
             debug=0;
         }
-        
         printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
         //選択
         selection_tournament();
@@ -127,8 +128,6 @@ int main(){
     }
     
     //初期個体生成．
-    TIMELIMIT = 120;
-    initialize(0, MAX_SPOTS-1);
     
     //評価値計算．
     //printf("hello\n");
@@ -143,11 +142,11 @@ int main(){
         //printf("fitness is %f\n", fitness[i]);
     }
     //自動実験プログラム
-    int time[] = {60, 180, 300};
+    int time[] = {60, 120, 180};
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 1; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;

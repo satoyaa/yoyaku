@@ -1,7 +1,7 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 200
+#define MAX_ITERATION 100
 #define POPULATION 100
 #define MAX_SPOTS 30 //観光地数
 #define MAX_NODES 900 //遺伝子長の最大値
@@ -9,7 +9,7 @@
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
-#define LOOPS 30
+#define LOOPS 100
 //#define reserve_rate 1
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)
@@ -66,7 +66,9 @@ extern Reserve genes_reserves[POPULATION][MAX_SPOTS];
 extern int queue_range[MAX_SPOTS];
 extern double fitness[POPULATION];
 extern double crossover_rate;
-extern double mutation_rate;
+extern double mutation_rateS;
+extern double mutation_rateR;
+extern double mutation_rateN;
 extern Save save_maxroot[MAX_NODES];
 extern Save save_minroot[MAX_NODES];
 extern Save save_temproot[LOOPS][MAX_NODES];

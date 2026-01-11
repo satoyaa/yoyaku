@@ -6,11 +6,7 @@
 void mutation_random(){
     for (int i = 1; i < POPULATION; i++)
     {
-        double r = (double)rand()/RAND_MAX;
-        if (mutation_rate < r)
-        {
-            continue;
-        }
+        
         //遺伝子長を計算
         int length = 0;
         for (int j = 0; j < MAX_NODES; j++)
@@ -30,13 +26,32 @@ void mutation_random(){
             {
                 break;
             }
-            int index = rand() % (length-1);
-            int vert = rand() % MAX_SPOTS;
+            int index = 0;
+            double r;
+            for (int k = 0; k < length-1; k++)
+            {
+                r = (double)rand()/RAND_MAX;
+                if (mutation_rateR < r)
+                {
+                    index = k;
+                    break;
+                }
+            }
+            int vert = 1;
+            for (int k = 0; k < MAX_SPOTS; k++)
+            {
+                r = (double)rand()/RAND_MAX;
+                if (mutation_rateR < r)
+                {
+                    vert = k;
+                    break;
+                }
+            }
             genes[i][index].vert = vert;
             if(1-reserve_rate){continue;}
-            int r = rand() % 2;
+            int random = rand() % 2;
             int index_reserve = rand() % MAX_SPOTS;
-            if (r==1 && spots[genes[i][index].vert].reservable==1)
+            if (random==1 && spots[genes[i][index].vert].reservable==1)
             {
                 genes_reserves[i][index_reserve].spot = 1-genes_reserves[i][index_reserve].spot;
                 if(genes_reserves[i][index_reserve].spot==0){genes_reserves[i][index_reserve].time=0;}

@@ -8,7 +8,7 @@ void mutation_newpop(int start, int goal){
     for (int i = POPULATION/2; i < POPULATION; i++)
     {
         int r = rand()% RAND_MAX;
-        if( r > mutation_rate){continue;}
+        if( r > mutation_rateN){continue;}
         int index = 0;
         int n = 1;
         for (int j = 0; j < MAX_NODES; j++){
