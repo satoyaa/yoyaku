@@ -160,6 +160,7 @@ void calc_fitness(int start, int goal){
             {
                 use_reserve[k] = genes_reserves[i][k].spot;
                 waiting_queue[k] = spots[k].capacity;  //待ち人数の初期値として席数を入れる(満席状態からスタートも少し違和感があるが)
+                busy_servers[k] = 0;
             }
             //srand((unsigned int)time(NULL));
             //srand(0);
@@ -201,7 +202,7 @@ void calc_fitness(int start, int goal){
                 int minutes = 0;
                 
                 //待ち時間を計算
-                //printf("k:%d pivot:%d next:%d sat:%d dur:%d\n", k, genes[i][pivot_index, genes[i][next_index].vert, satisfy, duration);
+                //if(debug){printf("k:%d pivot:%d next:%d sat:%f dur:%d\n", k, genes[i][pivot_index].vert, genes[i][next_index].vert, satisfy, duration);}
                 int wait = waiting_queue[genes[i][pivot_index].vert] * spots[genes[i][pivot_index].vert].t / (spots[genes[i][pivot_index].vert].capacity );
                 //printf("hello2\n");
                 //予約観光地では待ち時間0，早く着いた場合は予約時間まで待機．また，時間に間に合った場合は予約を使用，間に合わなかった場合はちょっとだけペナルティ
@@ -258,7 +259,7 @@ void calc_fitness(int start, int goal){
                     int flag = 0;
                     for (int l = 0; l < MAX_NODES; l++)
                     {
-                        //if(1){printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);}
+                        //if(debug){printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);}
                         if(temp_root[l].vert==-1||k==MAX_NODES){if(0){printf("None Duplication");}break;}
                         if(genes[i][k].vert==temp_root[l].vert){
                             flag=1;
@@ -284,7 +285,7 @@ void calc_fitness(int start, int goal){
                 next_index = k;
                 //次の観光地が目的地より先なら終了
                 if(next_index >= dest_node){break;}
-                //printf("k:%d pivot:%d next:%d sat:%d dur:%d\n", k, j, genes[i][next_index].vert, satisfy, duration);
+                //if(debug){printf("k:%d pivot:%d next:%d sat:%d dur:%d\n", k, j, genes[i][next_index].vert, satisfy, duration);}
                 
                 //ここで次の観光地を回ってもゴールに間に合うかを予想．
                 // 出発時間+移動時間+次観光地の所要時間+ゴールまでの移動時間の予想 
@@ -309,6 +310,7 @@ void calc_fitness(int start, int goal){
                 }                  
                 pivot_index = next_index;   
             }
+            if(debug){printf("bonjour");}
             
            
             //終了後ゴールまでの経路を入れる

@@ -55,8 +55,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     
-    //unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
-    unsigned int seed = 1768095067; //デバッグ用に固定した値を出したい 1000でバグる
+    unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
+    //unsigned int seed = 1768204878; //デバッグ用に固定した値を出したい 1000でバグる
     //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
@@ -142,11 +142,11 @@ int main(){
         //printf("fitness is %f\n", fitness[i]);
     }
     //自動実験プログラム
-    int time[] = {60, 120, 180};
+    int time[] = {60, 120, 180, 240, 300, 360};
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 0; i < 4; i++)
+    for (int i = 2; i < 5; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
@@ -182,6 +182,7 @@ int main(){
         for (int j = 0; j < count; j++)
         {
             progress = j;
+            printf("%d ", TIMELIMIT);
             time1 = clock();   
             ga(0, MAX_SPOTS-1);
             time2 = clock();   
@@ -262,6 +263,8 @@ int main(){
             snprintf(lineI, sizeof(lineI), "%d %f\n",j, saveIteration[j]/count);
             fprintf(fpI, "%s", lineI);
         }
+        snprintf(lineI, sizeof(lineI), "%f %f %f\n",sum_max/count, sum_min/count, sum_average/count);
+        fprintf(fpI, "%s", lineI);
         fclose(fpI);
     }
     for (int i = 3; i < 3; i++)
@@ -300,6 +303,7 @@ int main(){
         for (int j = 0; j < count; j++)
         {
             progress = j;
+            printf("%d ", TIMELIMIT);
             time1 = clock();   
             ga(0, MAX_SPOTS-1);
             time2 = clock();   
@@ -380,6 +384,8 @@ int main(){
             snprintf(lineI, sizeof(lineI), "%d %f\n",j, saveIteration[j]/count);
             fprintf(fpI, "%s", lineI);
         }
+        snprintf(lineI, sizeof(lineI), "%f %f %f\n",sum_max/count, sum_min/count, sum_average/count);
+        fprintf(fpI, "%s", lineI);
         fclose(fpI);
     }
     fclose(fp);

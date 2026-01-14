@@ -46,6 +46,7 @@ void mutation_NewBranch(){
                 }
                 if(deletePointCount>=deletePoint){
                     points = j;
+                    //printf("points %d \n",points);
                     break;
                 }
                 if(j==length-1)
@@ -77,10 +78,14 @@ void mutation_NewBranch(){
         {
             temp[j].vert = genes[i][j].vert; temp[j].time = genes[i][j].time; temp[j].dest = genes[i][j].dest;
             if(-1 < genes[i][j].dest && points < genes[i][j].dest){
-                temp[j].dest += branchSize;
+                
+                {
+                    temp[j].dest += branchSize;
+                }
             }
             
         }
+        
         temp[points].dest = points+branchSize;
         temp[points].time = TIMELIMIT / (rand() % 6 + 1); //出発時刻を選択
         //ブランチ作成前に確率の分母を作成（予約が出やすいように）
@@ -107,15 +112,38 @@ void mutation_NewBranch(){
             temp[j].vert = spot;
         }
         //ブランチ以降のノードをコピー
-        for (int j = points+branchSize+1; j < MAX_NODES; j++)
-        {
-            temp[j] = genes[i][j-branchSize];
-            //printf("%d %d %d %d\n", temp[j], genes[i][j-branchSize], j, branchSize);
+        if(isDelete < 0.5 && 0 < branches ){
+                for (int j = points+1; j < MAX_NODES; j++)
+                {
+                    if(j+genes[i][points].dest > MAX_NODES-1){
+                        break;
+                    }
+                    temp[j].vert = genes[i][j+genes[i][points].dest].vert;
+                    temp[j].dest = genes[i][j+genes[i][points].dest].dest;
+                    temp[j].time = genes[i][j+genes[i][points].dest].time;
+                    if(temp[j].dest > -1){
+                        //printf("%d %d %d\n",temp[j].dest ,genes[i][points].dest, points);
+                        temp[j].dest -= (genes[i][points].dest-points);
+                    }
+                    
+                    
+                    //printf("%d %d %d %d\n", temp[j], genes[i][j-branchSize], j, branchSize);
+                }
+                
+        }else{
+            for (int j = points+branchSize+1; j < MAX_NODES; j++)
+            {
+                temp[j].vert = genes[i][j-branchSize].vert;
+                temp[j].dest = genes[i][j-branchSize].dest;
+                temp[j].dest = genes[i][j-branchSize].time;
+                
+                //printf("%d %d %d %d\n", temp[j], genes[i][j-branchSize], j, branchSize);
+            }
         }
         //最大遺伝子長を超えるブランチを修正
         for (int j = 0; j < MAX_NODES; j++)
         {
-            if(temp[j].dest>MAX_NODES){
+            if(temp[j].dest>MAX_NODES && temp[j].vert != -1){
                 temp[j].dest = MAX_NODES-1;
             }
         }
@@ -125,6 +153,9 @@ void mutation_NewBranch(){
             genes[i][j].vert = temp[j].vert;
             genes[i][j].time = temp[j].time;
             genes[i][j].dest = temp[j].dest;
+            if(temp[j].dest < -1 || MAX_NODES < temp[j].dest || length+branchSize < temp[j].dest){
+                genes[i][j].dest = -1;
+            }
         }
     }
 }
