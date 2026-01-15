@@ -172,12 +172,16 @@ int main(){
         Save minroot[MAX_NODES];
         Save bestFitness[LOOPS][MAX_NODES];
         int save_count_temproot[LOOPS];
+        int save_best[count];
         double best_max  = -INFINITY;
         double best_min = INFINITY;
         double fitness_max = -INFINITY;
         for (int j = 0; j < MAX_ITERATION; j++)
         {
             saveIteration[j]=0;
+        }
+        for (int j = 0; j < count; j++){
+            save_best[j] = 0;
         }
         for (int j = 0; j < count; j++)
         {
@@ -245,11 +249,17 @@ int main(){
                 count_third_index=j;}
         }
         //ここまで
+        double standard = 0;
+        for (int j = 0; j < count; j++){
+            standard += (save_best[j]-sum_average/count)*(save_best[j]-sum_average/count);
+        }
+        double s = 0;
+        s = sqrt(standard/count);
         
         printf("most appeare root probabilty is %d\n",count_max);
         printf("max index is %d, second index is %d third index is %d",count_max_index, count_second_index, count_third_index);
         //printf("excuse: %f sec\n", sum_average/count);
-        snprintf(line, sizeof(line), "%dX %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
+        snprintf(line, sizeof(line), "%dX %f %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, s, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
         save_file(filenameA,maxroot,MAX_NODES);
         save_file(filenameB,minroot,MAX_NODES);
