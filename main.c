@@ -172,7 +172,7 @@ int main(){
         Save minroot[MAX_NODES];
         Save bestFitness[LOOPS][MAX_NODES];
         int save_count_temproot[LOOPS];
-        int save_best[count];        
+        double save_best[count];        
         double best_max  = -INFINITY;
         double best_min = INFINITY;
         double fitness_max = -INFINITY;
@@ -183,7 +183,6 @@ int main(){
         for (int j = 0; j < count; j++){
             save_best[j] = 0;
         }
-
         for (int j = 0; j < count; j++)
         {
             progress = j;
@@ -251,6 +250,12 @@ int main(){
                 count_third_index=j;}
         }
         //ここまで
+        double standard = 0;
+        for (int j = 0; j < count; j++){
+            standard += (save_best[j]-sum_average/count)*(save_best[j]-sum_average/count);
+        }
+        double s = 0;
+        s = sqrt(standard/count);
         
         double standard = 0;
         for (int j = 0; j < count; j++){
