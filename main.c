@@ -146,7 +146,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 2; i < 5; i++)
+    for (int i = 1; i < 3; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
@@ -172,6 +172,7 @@ int main(){
         Save minroot[MAX_NODES];
         Save bestFitness[LOOPS][MAX_NODES];
         int save_count_temproot[LOOPS];
+        int save_best[count];        
         double best_max  = -INFINITY;
         double best_min = INFINITY;
         double fitness_max = -INFINITY;
@@ -179,13 +180,18 @@ int main(){
         {
             saveIteration[j]=0;
         }
+        for (int j = 0; j < count; j++){
+            save_best[j] = 0;
+        }
+
         for (int j = 0; j < count; j++)
         {
             progress = j;
             printf("%d ", TIMELIMIT);
             time1 = clock();   
             ga(0, MAX_SPOTS-1);
-            time2 = clock();   
+            time2 = clock();
+            save_best[j] = best;   
             sum_max += max;
             sum_min += min;
             sum_average += best;
@@ -246,10 +252,17 @@ int main(){
         }
         //ここまで
         
+        double standard = 0;
+        for (int j = 0; j < count; j++){
+            standard += (save_best[j]-sum_average/count)*(save_best[j]-sum_average/count);
+        }
+        double s = 0;
+        s = sqrt(standard/count);
+
         printf("most appeare root probabilty is %d\n",count_max);
         printf("max index is %d, second index is %d third index is %d",count_max_index, count_second_index, count_third_index);
         //printf("excuse: %f sec\n", sum_average/count);
-        snprintf(line, sizeof(line), "%dX %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, count_max, count_second, count_third);
+        snprintf(line, sizeof(line), "%dX %f %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, s, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
         save_file(filenameA,maxroot,MAX_NODES);
         save_file(filenameB,minroot,MAX_NODES);
@@ -263,7 +276,7 @@ int main(){
             snprintf(lineI, sizeof(lineI), "%d %f\n",j, saveIteration[j]/count);
             fprintf(fpI, "%s", lineI);
         }
-        snprintf(lineI, sizeof(lineI), "%f %f %f\n",sum_max/count, sum_min/count, sum_average/count);
+        snprintf(lineI, sizeof(lineI), "%f %f %f %f\n",sum_max/count, sum_min/count, sum_average/count, s);
         fprintf(fpI, "%s", lineI);
         fclose(fpI);
     }
