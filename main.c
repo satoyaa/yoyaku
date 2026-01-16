@@ -27,7 +27,7 @@ int local_search_mode;
 int useLocalResearch;
 double saveIteration[MAX_ITERATION];
 int debug;
-int count = 10;
+int count = 2;
 int progress;
 double fitnessLog=0;
 double increase_rate=0;
@@ -55,8 +55,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     
-    unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
-    //unsigned int seed = 1768204878; //デバッグ用に固定した値を出したい 1000でバグる
+    //unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
+    unsigned int seed = 1768487998; //デバッグ用に固定した値を出したい 1000でバグる
     //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
@@ -68,7 +68,7 @@ void ga(int start, int goal){
     debug=0;
     for (int i = 0; i < MAX_ITERATION; i++)
     {   
-        if (i==10000)
+        if (i==46)
         {
             debug=1;
         }else{
@@ -89,7 +89,7 @@ void ga(int start, int goal){
         mutation_swap();
         mutation_random();
         //mutation_newpop(start, goal);
-        mutation_NewBranch();
+        //mutation_NewBranch();
         printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
@@ -146,7 +146,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 1; i < 3; i++)
+    for (int i = 4; i < 5; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
@@ -257,12 +257,6 @@ int main(){
         double s = 0;
         s = sqrt(standard/count);
         
-        double standard = 0;
-        for (int j = 0; j < count; j++){
-            standard += (save_best[j]-sum_average/count)*(save_best[j]-sum_average/count);
-        }
-        double s = 0;
-        s = sqrt(standard/count);
 
         printf("most appeare root probabilty is %d\n",count_max);
         printf("max index is %d, second index is %d third index is %d",count_max_index, count_second_index, count_third_index);

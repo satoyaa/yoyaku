@@ -38,7 +38,7 @@ void mutation_random(){
                 }
             }
             int vert = 1;
-            for (int k = 0; k < MAX_SPOTS; k++)
+            for (int k = 1; k < MAX_SPOTS-1; k++)
             {
                 r = (double)rand()/RAND_MAX;
                 if (mutation_rateR < r)
