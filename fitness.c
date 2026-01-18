@@ -149,9 +149,8 @@ void calc_fitness(int start, int goal){
             //duration += (TIMELIMIT/20 - rand() % (TIMELIMIT/10)); //スタート時間をランダムに設定
             //duration += (rand()%31 - 10); //-15分から+15分の範囲でランダムに変更
             int event = 0;
-            //event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
-            //event = exp(-(double)rand())*(TIMELIMIT-calc_travel_time(start, goal)); //短い時間が現れやすい１
-            event = sampling(start, goal); //短い時間が現れやすい
+            event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
+            //event = sampling(start, goal); //短い時間が現れやすい
             //printf("%d ", event);
             //event = TIMELIMIT-calc_travel_time(start, goal)-sampling(start, goal); //長い時間が現れやすい
             duration += event;
@@ -202,7 +201,7 @@ void calc_fitness(int start, int goal){
                 int minutes = 0;
                 
                 //待ち時間を計算
-                if(debug){printf("k:%d pivot:%d next:%d sat:%f dur:%d\n", k, genes[i][pivot_index].vert, genes[i][next_index].vert, satisfy, duration);}
+                //if(debug){printf("k:%d pivot:%d next:%d sat:%f dur:%d\n", k, genes[i][pivot_index].vert, genes[i][next_index].vert, satisfy, duration);}
                 int wait = waiting_queue[genes[i][pivot_index].vert] * spots[genes[i][pivot_index].vert].t / (spots[genes[i][pivot_index].vert].capacity );
                 //printf("hello2\n");
                 //予約観光地では待ち時間0，早く着いた場合は予約時間まで待機．また，時間に間に合った場合は予約を使用，間に合わなかった場合はちょっとだけペナルティ
@@ -259,7 +258,22 @@ void calc_fitness(int start, int goal){
                     int flag = 0;
                     for (int l = 0; l < MAX_NODES; l++)
                     {
-                        if(debug){printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);}
+                        /*
+                        if(debug && (k < 0 || MAX_NODES < k) ){
+                            printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);
+                            for (int k = 0; k < MAX_NODES; k++)
+                            {
+                                printf("%d ", genes[i][k].vert );
+                            }
+                            printf("\n dest");
+                            for (int k = 0; k < MAX_NODES; k++)
+                            {
+                                printf("%d ", genes[i][k].dest );
+                            }
+                            exit(1);
+                            
+                        }*/
+
                         if(temp_root[l].vert==-1||k==MAX_NODES){if(0){printf("None Duplication");}break;}
                         if(genes[i][k].vert==temp_root[l].vert){
                             flag=1;
@@ -310,7 +324,7 @@ void calc_fitness(int start, int goal){
                 }                  
                 pivot_index = next_index;   
             }
-            if(debug){printf("bonjour");}
+            //if(debug){printf("bonjour");}
             
            
             //終了後ゴールまでの経路を入れる

@@ -67,7 +67,7 @@ void crossover_twopoint(){
             temp1[index1].vert = genes[i][j].vert;
             temp1[index1].time = genes[i][j].time;
             temp1[index1].dest = genes[i][j].dest-start2+index1;
-            if(genes[i+1][j].dest==-1){temp1[index1].dest = genes[i][j].dest;}
+            if(genes[i][j].dest==-1){temp1[index1].dest = genes[i][j].dest;}
             index1+=1;
         }
         for (int j = start1; j < end1; j++)
@@ -87,7 +87,7 @@ void crossover_twopoint(){
             temp1[index1].vert = genes[i][j].vert;
             temp1[index1].time = genes[i][j].time;
             temp1[index1].dest = genes[i][j].dest-end1+index1;
-            if(genes[i+1][j].dest==-1){temp1[index1].dest = genes[i][j].dest;}
+            if(genes[i][j].dest==-1){temp1[index1].dest = genes[i][j].dest;}
             index1+=1;
         }
         for (int j = end2; j < MAX_NODES; j++)

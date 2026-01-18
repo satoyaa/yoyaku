@@ -27,7 +27,7 @@ int local_search_mode;
 int useLocalResearch;
 double saveIteration[MAX_ITERATION];
 int debug;
-int count = 2;
+int count = 30;
 int progress;
 double fitnessLog=0;
 double increase_rate=0;
@@ -55,8 +55,8 @@ void save_file(const char *filename, Save *array, size_t size) {
 
 void ga(int start, int goal){
     
-    //unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
-    unsigned int seed = 1768487998; //デバッグ用に固定した値を出したい 1000でバグる
+    unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
+    //unsigned int seed = 1768487998; //デバッグ用に固定した値を出したい 1000でバグる
     //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
@@ -68,7 +68,7 @@ void ga(int start, int goal){
     debug=0;
     for (int i = 0; i < MAX_ITERATION; i++)
     {   
-        if (i==46)
+        if (i==10000)
         {
             debug=1;
         }else{
@@ -146,7 +146,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 4; i < 5; i++)
+    for (int i = 2; i < 3; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;
@@ -261,7 +261,7 @@ int main(){
         printf("most appeare root probabilty is %d\n",count_max);
         printf("max index is %d, second index is %d third index is %d",count_max_index, count_second_index, count_third_index);
         //printf("excuse: %f sec\n", sum_average/count);
-        snprintf(line, sizeof(line), "%dX %f %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, s, count_max, count_second, count_third);
+        snprintf(line, sizeof(line), "%dX %f %f %f %f %f %d %d %d\n",time[i], sum_max/count, sum_min/count, sum_average/count, s, sum_time/count, count_max, count_second, count_third);
         fprintf(fp, "%s", line);
         save_file(filenameA,maxroot,MAX_NODES);
         save_file(filenameB,minroot,MAX_NODES);
@@ -275,7 +275,7 @@ int main(){
             snprintf(lineI, sizeof(lineI), "%d %f\n",j, saveIteration[j]/count);
             fprintf(fpI, "%s", lineI);
         }
-        snprintf(lineI, sizeof(lineI), "%f %f %f %f\n",sum_max/count, sum_min/count, sum_average/count, s);
+        snprintf(lineI, sizeof(lineI), "%f %f %f %f %f\n",sum_max/count, sum_min/count, sum_average/count, s, sum_time/count);
         fprintf(fpI, "%s", lineI);
         fclose(fpI);
     }
