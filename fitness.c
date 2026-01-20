@@ -47,51 +47,50 @@ int calc_travel_time(int i, int j){
 }
 
 
-void calc_queue_range(){
-    for (int k = 0; k < MAX_SPOTS; k++) {
-        // パラメータの計算
-        double lambda_per_minute = spots[k].crow / 60.0; // 1分あたりの平均到着率 (λ)
-        double mu_per_minute = 1.0 / spots[k].t;         // 1分あたりの平均サービス率 (μ)
-        int servers = spots[k].capacity;                 // 窓口数 (s)
+void calc_queue_range(int k){
+    // パラメータの計算
+    double lambda_per_minute = spots[k].crow / 60.0; // 1分あたりの平均到着率 (λ)
+    double mu_per_minute = 1.0 / spots[k].t;         // 1分あたりの平均サービス率 (μ)
+    int servers = spots[k].capacity;                 // 窓口数 (s)
+    
+    // 1分間にサービスが完了する確率（離散時間近似）
+    double p_complete = 1.0 - exp(-mu_per_minute);
+
+    // 初期化（シミュレーション開始前に外部で行われるべきだが、ここではループ開始時に初期化）
+    // waiting_queue[k] と busy_servers[k] は外部で初期化されていると仮定
+    // 例: waiting_queue[k] = 0; busy_servers[k] = 0;
+
         
-        // 1分間にサービスが完了する確率（離散時間近似）
-        double p_complete = 1.0 - exp(-mu_per_minute);
+    // 1. サービス完了（システムからの退場）
+    // サービス中の人数から、完了した人数を二項分布で決定
+    int completions = binomial_rand(busy_servers[k], p_complete);
+    // 完了した人数分、サービス中から減らす
+    busy_servers[k] -= completions;
 
-        // 初期化（シミュレーション開始前に外部で行われるべきだが、ここではループ開始時に初期化）
-        // waiting_queue[k] と busy_servers[k] は外部で初期化されていると仮定
-        // 例: waiting_queue[k] = 0; busy_servers[k] = 0;
+    // 2. 待ちのサービス開始（待ち行列からサービス中へ移動）
+    int free_servers = servers - busy_servers[k];
+    
+    // 待ち人数と空き窓口の数の少ない方を、サービス開始人数とする
+    int to_start = (waiting_queue[k] < free_servers) ? waiting_queue[k] : free_servers;
+    
+    // サービス中の人数を増やし、待ち行列の人数を減らす
+    busy_servers[k] += to_start;
+    waiting_queue[k] -= to_start;
 
-            
-        // 1. サービス完了（システムからの退場）
-        // サービス中の人数から、完了した人数を二項分布で決定
-        int completions = binomial_rand(busy_servers[k], p_complete);
-        // 完了した人数分、サービス中から減らす
-        busy_servers[k] -= completions;
-
-        // 2. 待ちのサービス開始（待ち行列からサービス中へ移動）
-        int free_servers = servers - busy_servers[k];
-        
-        // 待ち人数と空き窓口の数の少ない方を、サービス開始人数とする
-        int to_start = (waiting_queue[k] < free_servers) ? waiting_queue[k] : free_servers;
-        
-        // サービス中の人数を増やし、待ち行列の人数を減らす
-        busy_servers[k] += to_start;
-        waiting_queue[k] -= to_start;
-
-        // 3. 到着（待ち行列への加算）
-        // 1分間に到着する人数をポアソン乱数で決定
-        int arrivals = poisson_rand(lambda_per_minute);
-        // 到着した人数は全て、待ち行列に追加される
-        waiting_queue[k] += arrivals;
-    }
+    // 3. 到着（待ち行列への加算）
+    // 1分間に到着する人数をポアソン乱数で決定
+    int arrivals = poisson_rand(lambda_per_minute);
+    // 到着した人数は全て、待ち行列に追加される
+    waiting_queue[k] += arrivals;
 }
+
 
 int sampling(int start, int goal){
     double u = (double)rand()/RAND_MAX;  // 0から1の一様分布からのサンプリング
     if (u == 0.0) u = 1e-10;
     double lambda_param = -log(1-0.95)/(TIMELIMIT-calc_travel_time(start, goal)); //95%が収まる設定
     int x = -log(1 - u) / lambda_param;  // 逆関数法で指数分布に変換
-    if(x >= TIMELIMIT-calc_travel_time(start, goal)){x=TIMELIMIT-calc_travel_time(start, goal);}
+    if(x >= TIMELIMIT-calc_travel_time(start, goal)){x=sampling(start, goal);}
     return x;
 }
 
@@ -149,8 +148,8 @@ void calc_fitness(int start, int goal){
             //duration += (TIMELIMIT/20 - rand() % (TIMELIMIT/10)); //スタート時間をランダムに設定
             //duration += (rand()%31 - 10); //-15分から+15分の範囲でランダムに変更
             int event = 0;
-            event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
-            //event = sampling(start, goal); //短い時間が現れやすい
+            //event = (rand()%(TIMELIMIT-calc_travel_time(start, goal))); //一様分布
+            event = sampling(start, goal); //短い時間が現れやすい
             //printf("%d ", event);
             //event = TIMELIMIT-calc_travel_time(start, goal)-sampling(start, goal); //長い時間が現れやすい
             duration += event;
@@ -173,7 +172,10 @@ void calc_fitness(int start, int goal){
             temp_root[temp_index].time = 0;
             temp_index++;
             //待ち時間をシミュレーション
-            calc_queue_range();
+            for (int k = 0; k < MAX_SPOTS; k++)
+            {
+                calc_queue_range(k);
+            }
             expect = duration + calc_travel_time(genes[i][pivot_index].vert, genes[i][next_index].vert) + spots[genes[i][next_index].vert].t + calc_travel_time(genes[i][next_index].vert, goal);
             //printf("\ncalc_travel_time3[%d][%d][%d] done",i,j,k);
             //出発前にゴールに間に合うか判定 間に合わない場合は終了
@@ -199,7 +201,8 @@ void calc_fitness(int start, int goal){
                 temp_root[temp_index].time = genes[i][pivot_index].time;
                 temp_index++;
                 int minutes = 0;
-                
+                //待ち時間シミュレーション（到着時）
+                calc_queue_range(spots[genes[i][pivot_index].vert].vert);
                 //待ち時間を計算
                 //if(debug){printf("k:%d pivot:%d next:%d sat:%f dur:%d\n", k, genes[i][pivot_index].vert, genes[i][next_index].vert, satisfy, duration);}
                 int wait = waiting_queue[genes[i][pivot_index].vert] * spots[genes[i][pivot_index].vert].t / (spots[genes[i][pivot_index].vert].capacity );
@@ -232,8 +235,7 @@ void calc_fitness(int start, int goal){
                 //もし待ち時間+所要時間が制限時間をオーバーするならゴールに向かう
                 if(duration+minutes > TIMELIMIT){break;}
                 duration+=minutes;
-                //待ち時間シミュレーション（出発時）
-                calc_queue_range();
+                
                 //printf("\ncalc_queue_range1[%d][%d][%d] done",i,j,k);
                 minutes = 0; //シミュレーションが終わったので時間リセット
 

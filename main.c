@@ -89,7 +89,7 @@ void ga(int start, int goal){
         mutation_swap();
         mutation_random();
         //mutation_newpop(start, goal);
-        //mutation_NewBranch();
+        mutation_NewBranch();
         printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
