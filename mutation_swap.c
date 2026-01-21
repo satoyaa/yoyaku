@@ -56,6 +56,7 @@ void mutation_swap(){
             genes_reserves[i][goal-j].time = temp;
             if (spots[start+j].reservable==0)
             {
+                
                 genes_reserves[i][start+j].spot=0;
                 genes_reserves[i][start+j].time=0;
             }

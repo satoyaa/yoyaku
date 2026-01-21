@@ -59,58 +59,46 @@ void ga(int start, int goal){
     //unsigned int seed = 1766965875; //デバッグ用に固定した値を出したい 1000でバグる
     srand(seed);
     initialize(start, goal); //(start, goal)
-    printf("initialization done.\n");
+    //printf("initialization done.\n");
     calc_fitness(start, goal);
     savemode = 0;
     local_search_mode = 0;
-    printf("initial fitness calculation done.\n");
-    printf("crossover_rate:%f mutation_rate:%f\n", crossover_rate, mutation_rateN);
+    //printf("initial fitness calculation done.\n");
+    printf("crossover_rate:%f mutation_rate:%f ", crossover_rate, mutation_rateN);
     debug=0;
     for (int i = 0; i < MAX_ITERATION; i++)
     {   
+        
         if (i==10000)
         {
             debug=1;
         }else{
             debug=0;
         }
-        
-        printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
+        //printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
         //選択
         selection_tournament();
-        printf("selection done, fitness is %f, ", fitness[0]);
+        //printf("selection done, fitness is %f, ", fitness[0]);
         saveIteration[i]+=fitness[0];
         increase_rate = fitness[0]-fitnessLog;
         fitnessLog = fitness[0];
         //交叉
         //crossover_pmx();
         crossover_twopoint();
-        printf("crossover done, ");
-        
+        //printf("crossover done, ");
         //突然変異
-        //double r = rand()/RAND_MAX;
         mutation_swap();
-        //mutation_random();
-        mutation_newpop(start, goal);
-        printf("mutation done, ");
+        mutation_random();
+        //mutation_newpop(start, goal);
+        //mutation_NewBranch();
+        //mutation_NewBranch2();
+        mutation_NewBranch3();
+        //printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
-        printf("calculate fitness done.\n");
         
     }
-    printf("\n");
-    selection_tournament();
-    calc_fitness(start, goal);
-    //local_search(start, goal);
-    selection_tournament();
-    if(useLocalResearch==1){
-        local_search_ultimate(start, goal);
-        //local_search_binary(start, goal);
-    }
-    if(useLocalResearch==2){
-        //local_search_ultimate(start, goal);
-        local_search_binary(start, goal);
-    }
+    //printf("\n");
     selection_tournament();
     min=INFINITY;
     max=-INFINITY;
@@ -133,10 +121,10 @@ int main(){
     */
     //GAのパラメータ調整
 
-    TIMELIMIT = 180;
+    TIMELIMIT = 240;
     
-    double crossover_rates[] = {0.1, 0.3, 0.5, 0.7};
-    double mutation_rates[] = {1.0, 0.5, 0.2, 0.05};
+    double crossover_rates[] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+    double mutation_rates[] = {0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0};
 
     double best_crossover_rate = 0;
     double best_mutation_rate = 0;
@@ -145,11 +133,11 @@ int main(){
     useLocalResearch = 0;
     reserve_rate = 1;
     const char* filename = "Result/Adjust.txt";
-    count = 10;
+    count = 30;
     FILE* fp = fopen(filename, "w"); 
-    for (int i = 1; i < 4; i++)
+    for (int i = 0; i < 11; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < 8; j++)
         {
             if(i==0&&j==0){continue;}
             double sum_best = 0;
@@ -157,6 +145,7 @@ int main(){
             mutation_rateN = mutation_rates[j];
             char filename[20];        
             char line[256]; 
+            double save_best[count];        
             sprintf(filename, "Result/GaResult_%2f_%2f.txt", crossover_rates[i], mutation_rates[j]);
             for (int k = 0; k < MAX_ITERATION; k++)
             {
@@ -165,17 +154,26 @@ int main(){
             for (int k = 0; k < count; k++)
             {
                 progress = k;
+                printf("GA:%d/%d ", k, count);
                 ga(0, MAX_SPOTS-1);
                 sum_best += best;
+                save_best[j] = best;  
             }
+            printf("\n");
             if(sum_best/count > best_fitness){
                 //スコアを更新
                 best_fitness = sum_best/count;
                 best_crossover_rate = crossover_rates[i];
                 best_mutation_rate = mutation_rates[j];
             }
+            double standard = 0;
+            for (int j = 0; j < count; j++){
+                standard += (save_best[j]-sum_best/count)*(save_best[j]-sum_best/count/count);
+            }
+            double s = 0;
+            s = sqrt(standard/count);
 
-            snprintf(line, sizeof(line), "%f %f %f\n",sum_best/count, crossover_rates[i], mutation_rates[j]);
+            snprintf(line, sizeof(line), "%f %f %f %f\n",sum_best/count, s, crossover_rates[i], mutation_rates[j]);
             fprintf(fp, "%s", line);
 
             FILE *fpI = fopen(filename, "w"); // 書き込みモードで開く

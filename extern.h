@@ -1,15 +1,15 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#define MAX_ITERATION 100
+#define MAX_ITERATION 3
 #define POPULATION 100
-#define MAX_SPOTS 30 //観光地数
+#define MAX_SPOTS 50 //観光地数
 #define MAX_NODES 900 //遺伝子長の最大値
 #define MAX_INITIALIZE_NODES MAX_NODES
 #define MAX_RESERVES 10
 #define SPEED 30 //速度（km/h）
 //#define TIMELIMIT 120 //制限時間(分)
-#define LOOPS 30
+#define LOOPS 100
 //#define reserve_rate 1
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)
@@ -85,6 +85,8 @@ extern void selection_tournament();
 extern void mutation_swap();
 extern void mutation_random();
 extern void mutation_NewBranch();
+extern void mutation_NewBranch2();
+extern void mutation_NewBranch3();
 extern void local_search(int start, int goal);
 extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
