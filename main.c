@@ -13,7 +13,8 @@ Save save_maxroot[MAX_NODES];
 Save save_minroot[MAX_NODES];
 Save save_temproot[LOOPS][MAX_NODES];
 int count_temproot[LOOPS];
-double crossover_rate = 0.5;
+//double crossover_rate = 0.5;
+double crossover_rate = 0.7;
 double mutation_rateS = 0.05;
 double mutation_rateR = 0.05;
 //double mutation_rateN = 0.2;//古い方
@@ -92,7 +93,9 @@ void ga(int start, int goal){
         //mutation_newpop(start, goal);
         //mutation_NewBranch();
         //mutation_NewBranch2();
+        //mutation_NewBranch3();
         mutation_NewBranch3();
+        //mutation_NewBranch5();
         //printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
@@ -122,6 +125,7 @@ void ga(int start, int goal){
     max=-INFINITY;
     savemode = 1;
     calc_fitness(start, goal);
+    selection_tournament();
     best = fitness[0];
     printf("best:%f\n",best);
 }
@@ -153,7 +157,7 @@ int main(){
     const char* filename = "root/Result.txt";
     FILE* fp = fopen(filename, "w"); 
     
-    for (int i = 2; i < 3; i++)
+    for (int i = 2; i < 4; i++)
     {
         reserve_rate = 1;
         useLocalResearch = 0;

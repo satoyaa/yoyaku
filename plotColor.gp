@@ -1,6 +1,6 @@
 # 1. ターミナル全体の基本サイズを大きめにする（全体的な底上げ）
 set terminal pngcairo font "sans,14" size 800,600
-set output 'temp.png'
+set output 'temp1.png'
 
 # 2. 軸ラベルのフォントサイズを個別に指定 (例: 18ポイント)
 set xlabel "制限時間" font "sans,20"
@@ -18,8 +18,8 @@ set grid
 set yrange [0:300]
 set xrange [-0.5:5.5]
 
-plot 'data.dat' using 0:2:xtic(1) with linespoints lw 2 pt 7 dt 1 title columnhead(2), \
-    'data.dat' using 0:3:xtic(1) with linespoints lw 2 pt 9 dt 2 title columnhead(3)
+plot 'dataR.dat' using 0:2:xtic(1) with linespoints lw 2 pt 7 dt 1 title columnhead(2), \
+    'dataR.dat' using 0:3:xtic(1) with linespoints lw 2 pt 9 dt 2 title columnhead(3)
 
 
 

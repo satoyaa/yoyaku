@@ -87,6 +87,8 @@ extern void mutation_random();
 extern void mutation_NewBranch();
 extern void mutation_NewBranch2();
 extern void mutation_NewBranch3();
+extern void mutation_NewBranch4();
+extern void mutation_NewBranch5();
 extern void local_search(int start, int goal);
 extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
@@ -98,6 +100,7 @@ extern int calc_travel_time(int i, int j);
 extern int debug;
 extern double fitnessLog;
 extern double increase_rate;
+extern int progress;
 //extern void serchAll();
 
 

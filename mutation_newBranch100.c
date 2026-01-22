@@ -4,8 +4,7 @@
 #include "extern.h"
 
 
-
-void mutation_NewBranch4(){
+void mutation_NewBranch3(){
     for (int i = 1; i < POPULATION; i++)
     {
         double r = (double)rand()/RAND_MAX;
@@ -30,7 +29,7 @@ void mutation_NewBranch4(){
                 isReserve+=1;
             }
         }
-        int spot = 1;
+        int spot = 6;
         if (isReserve == 0)
         {
             int denominator = 0;
@@ -55,7 +54,7 @@ void mutation_NewBranch4(){
                 }
             }
             genes_reserves[i][spot].spot = spot;
-            genes_reserves[i][spot].time = (rand() % (TIMELIMIT/15))*15;
+            genes_reserves[i][spot].time = (rand() % ((TIMELIMIT-(calc_travel_time(spot, MAX_SPOTS-1)+spots[spot].t))/15))*15;
             
         }else{
             int ra = rand()%isReserve;
@@ -72,7 +71,7 @@ void mutation_NewBranch4(){
                 }
             }
         }
-        int index = 1;
+        int index = 0;
         for (int j = 0; j < MAX_NODES; j++)
         {
             if(genes[i][index].vert = -1){break;}
@@ -85,17 +84,12 @@ void mutation_NewBranch4(){
                 continue;
             }
             temp[j].vert = genes[i][index].vert;
-            temp[j].dest = genes[i][index].dest;
-            temp[j].time = genes_reserves[i][spot].time;
-            temp[j+1].vert = spot;
-            if ((genes[i][index].vert != genes[i][index+1].vert) && (genes[i][index+1].vert != spot) && (genes[i][index+1].vert != -1))
-            {
-                //temp[j+1].time = genes_reserves[i][spot].time - (calc_travel_time(genes[i][index].vert, genes[i][index+1].vert) + spots[genes[i][index].vert].t + calc_travel_time(genes[i][index+1].vert, spot)+mmc_waiting_time10(spots[genes[0][index+1].vert].crow, spots[genes[0][index+1].vert].capacity, spots[genes[0][index+1].vert].t)*1.5);
-            }else{
-                //temp[j+1].time = genes_reserves[i][spot].time - calc_travel_time(genes[i][index].vert, spot);
-            }
+            temp[j].dest = j+2;
+            temp[j].time = genes_reserves[i][spot].time-calc_travel_time(genes[i][index].vert, spot);
             index += 1;
-            temp[j+1].dest = j+2;
+            temp[j+1].vert = spot;
+            temp[j+1].time = 100000;
+            temp[j+1].dest = -1;
             j++;
         }
         for (int j = 0; j < MAX_NODES; j++)

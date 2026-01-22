@@ -134,6 +134,7 @@ void calc_fitness(int start, int goal){
         printf("\n");*/
         int loops = LOOPS;
         //if(i==0){loops=1000;}
+        srand(progress);
         for (int j = 0; j < loops; j++)
         {
             int duration = 0; //時間計算用
@@ -247,7 +248,7 @@ void calc_fitness(int start, int goal){
                     if (genes[i][k].dest != -1)
                     {
                         //現在時刻が出発時刻より早い場合は行先を目的地に更新
-                        if (duration < genes[i][k].time)
+                        if (duration > genes[i][k].time)
                         {
                             dest_node = genes[i][k].dest;
                         }//現在時刻より出発時刻が遅い場合は巡回地点に行先を代入
@@ -278,20 +279,7 @@ void calc_fitness(int start, int goal){
 
                         if(temp_root[l].vert==-1||k==MAX_NODES){if(0){printf("None Duplication");}break;}
                         if(genes[i][k].vert==temp_root[l].vert){
-                            flag=1;
-                            //printf("A %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);
-                            for (int m = k; m < MAX_NODES-1; m++)
-                            {
-                                genes[i][m].vert = genes[i][m+1].vert;
-                                genes[i][m].time = genes[i][m+1].time;
-                                if(genes[i][m+1].dest==-1){genes[i][m].dest = genes[i][m+1].dest;}
-                                else{genes[i][m].dest = genes[i][m+1].dest-1;}
-                            }
-                            //printf("B %d %d %d %d \n",i, k, genes[i][k].vert,temp_root[l].vert);
-                            genes[i][MAX_NODES-1].vert = -1;
-                            genes[i][MAX_NODES-1].time = 100000;
-                            genes[i][MAX_NODES-1].dest = -1;
-                            break;
+                            flag=1;k++;
                         }
                     }
                     if(flag){continue;}
@@ -344,7 +332,7 @@ void calc_fitness(int start, int goal){
             //予約を使わなかった場合はペナルティ
             for (int k = 0; k < MAX_SPOTS; k++)
             {
-                satisfy -= (use_reserve[k] * 100);
+                satisfy -= (use_reserve[k] * 10000);
             }
             
             
