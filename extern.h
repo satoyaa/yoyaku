@@ -2,8 +2,8 @@
 #define EXTERN_H
 
 #define MAX_ITERATION 100
-#define POPULATION 100
-#define MAX_SPOTS 30 //観光地数
+#define POPULATION 50
+#define MAX_SPOTS 50 //観光地数
 #define MAX_NODES 900 //遺伝子長の最大値
 #define MAX_INITIALIZE_NODES MAX_NODES
 #define MAX_RESERVES 10
@@ -85,6 +85,8 @@ extern void selection_tournament();
 extern void mutation_swap();
 extern void mutation_random();
 extern void mutation_NewBranch();
+extern void mutation_NewBranch2();
+extern void mutation_NewBranch3();
 extern void local_search(int start, int goal);
 extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
@@ -92,6 +94,7 @@ void mutation_newpop(int start, int goal);
 extern void readdata(const char * filename);
 extern void initialize(int start, int goal);
 extern void calc_fitness(int start, int goal);
+extern int calc_travel_time(int i, int j);
 extern int debug;
 extern double fitnessLog;
 extern double increase_rate;

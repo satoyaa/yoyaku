@@ -16,7 +16,8 @@ int count_temproot[LOOPS];
 double crossover_rate = 0.5;
 double mutation_rateS = 0.05;
 double mutation_rateR = 0.05;
-double mutation_rateN = 0.2;
+//double mutation_rateN = 0.2;//古い方
+double mutation_rateN = 0.2;//新しい方
 int TIMELIMIT;
 double min = INFINITY; //処理の都合で今代入
 double max = -INFINITY; //処理の都合で今代入
@@ -60,11 +61,11 @@ void ga(int start, int goal){
     //printf("seed:%u\n", seed);
     srand(seed);
     initialize(start, goal); //(start, goal)
-    printf("initialization done.\n");
+    //printf("initialization done.\n");
     calc_fitness(start, goal);
     savemode = 0;
     local_search_mode = 0;
-    printf("initial fitness calculation done.\n");
+    //printf("initial fitness calculation done.\n");
     debug=0;
     for (int i = 0; i < MAX_ITERATION; i++)
     {   
@@ -74,43 +75,49 @@ void ga(int start, int goal){
         }else{
             debug=0;
         }
-        printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
+        //printf("GA:%d/%d iteration:%d seed:%u ",progress+1, count, i, seed);
         //選択
         selection_tournament();
-        printf("selection done, fitness is %f, ", fitness[0]);
+        //printf("selection done, fitness is %f, ", fitness[0]);
         saveIteration[i]+=fitness[0];
         increase_rate = fitness[0]-fitnessLog;
         fitnessLog = fitness[0];
         //交叉
         //crossover_pmx();
         crossover_twopoint();
-        printf("crossover done, ");
+        //printf("crossover done, ");
         //突然変異
         mutation_swap();
         mutation_random();
         //mutation_newpop(start, goal);
-        mutation_NewBranch();
-        printf("mutation done, ");
+        //mutation_NewBranch();
+        //mutation_NewBranch2();
+        mutation_NewBranch3();
+        //printf("mutation done, ");
         //評価値計算
         calc_fitness(start, goal);
-        printf("calculate fitness done.\n");
+        //printf("calculate fitness done.\n");
         
         
         
     }
-    selection_tournament();
-    calc_fitness(start, goal);
-    //local_search(start, goal);
+
     selection_tournament();
     if(useLocalResearch==1){
+        selection_tournament();
+        calc_fitness(start, goal);
         local_search_ultimate(start, goal);
         //local_search_binary(start, goal);
+        selection_tournament();
     }
     if(useLocalResearch==2){
+        selection_tournament();
+        calc_fitness(start, goal);
         //local_search_ultimate(start, goal);
         local_search_binary(start, goal);
+        selection_tournament();
     }
-    selection_tournament();
+    
     min=INFINITY;
     max=-INFINITY;
     savemode = 1;

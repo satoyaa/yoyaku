@@ -1,0 +1,1 @@
+plot 'o-sakaFoodsX.txt' using 8:9 with points pt 7 ps 1.5 lc rgb 'green' title 'Points', 'o-sakamap.txt' using 1:2 with lines lw 1 lc rgb 'blue' title 'Map','o-sakaFoodsX.txt' using 8:9:1 with labels offset 0.7,0.7 tc rgb 'black' notitle

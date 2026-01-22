@@ -4,7 +4,7 @@
 #include "extern.h"
 
 
-void mutation_NewBranch(){
+void mutation_NewBranch2(){
     for (int i = 1; i < POPULATION; i++)
     {
         double r = (double)rand()/RAND_MAX;
@@ -94,18 +94,38 @@ void mutation_NewBranch(){
         int denominator = 0;
         for (int j = 1; j < MAX_SPOTS-1; j++)
         {
+            denominator+=spots[j].value;
+        }
+        int spot = 1;
+        int rate = rand()%denominator;
+        int current_sum = 0;
+        for (int k = 1; k < MAX_SPOTS-1; k++)
+        {
+            current_sum += spots[k].value;
+            if(rate < current_sum){
+                spot=k;
+                break;
+            }
+        }
+        if(spots[spot].reservable == 1){genes_reserves[i][spot].spot=1;genes_reserves[i][spot].spot=1;(rand() % (TIMELIMIT/15))*15;}
+        //while ((spot == start) || (spot == goal)){spot = rand()%MAX_SPOTS;} //スタートとゴール以外の観光地をランダムに選択
+        if(points+1<points+branchSize+1){temp[points+1].vert = spot;}
+
+        denominator = 0;
+        for (int j = 1; j < MAX_SPOTS-1; j++)
+        {
             denominator+=genes_reserves[i][j].spot+1;
         }
         //ここに新たなブランチを作成する．ブランチsizeまで新しい遺伝子座で上書き，後ろにスライド（予約観光地が出やすくする処理）
-        for (int j = points+1; j < points+branchSize+1; j++)
+        for (int j = points+2; j < points+branchSize+1; j++)
         {
-            int spot = 1;
-            int r = rand()%denominator;
-            int current_sum = 0;
+            spot = 1;
+            rate = rand()%denominator;
+            current_sum = 0;
             for (int k = 1; k < MAX_SPOTS-1; k++)
             {
                 current_sum += genes_reserves[i][k].spot+1;
-                if(r < current_sum){
+                if(rate < current_sum){
                     spot=k;
                     break;
                 }

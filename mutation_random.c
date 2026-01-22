@@ -19,7 +19,7 @@ void mutation_random(){
             continue;
         }
         //ランダム突然変異の実装
-        int changes = rand() % length; // 変化させる遺伝子の数を決定
+        int changes = 5;
         for (int j = 0; j < changes; j++)
         {
             if (1<=length)
@@ -28,34 +28,26 @@ void mutation_random(){
             }
             int index = 0;
             double r;
-            for (int k = 0; k < length-1; k++)
+            if (mutation_rateR < r)
             {
                 r = (double)rand()/RAND_MAX;
-                if (mutation_rateR < r)
-                {
-                    index = k;
-                    break;
-                }
+                continue;
             }
-            int vert = 1;
-            for (int k = 1; k < MAX_SPOTS-1; k++)
-            {
-                r = (double)rand()/RAND_MAX;
-                if (mutation_rateR < r)
-                {
-                    vert = k;
-                    break;
-                }
-            }
+            int vert = rand()%MAX_SPOTS;
+            r = (double)rand()/RAND_MAX;
             genes[i][index].vert = vert;
+            if (mutation_rateR < r)
+            {
+                continue;
+            }
             if(1-reserve_rate){continue;}
-            int random = rand() % 2;
             int index_reserve = rand() % MAX_SPOTS;
-            if (random==1 && spots[genes[i][index].vert].reservable==1)
+            if (spots[genes[i][index].vert].reservable==1)
             {
                 genes_reserves[i][index_reserve].spot = 1-genes_reserves[i][index_reserve].spot;
                 if(genes_reserves[i][index_reserve].spot==0){genes_reserves[i][index_reserve].time=0;}
-                genes_reserves[i][index_reserve].time = TIMELIMIT / (rand() % 6 + 1); //予約時刻を選択
+                //genes_reserves[i][index_reserve].time = TIMELIMIT / (rand() % 6 + 1); //予約時刻を選択
+                genes_reserves[i][index_reserve].time = (rand() % (TIMELIMIT/15))*15;; //予約時刻を選択
             }
         }
     }
