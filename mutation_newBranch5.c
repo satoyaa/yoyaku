@@ -105,7 +105,7 @@ void mutation_NewBranch5(){
             {
                 current_sum += spots[j].value;
                 if(r < current_sum){
-                    spot=40;
+                    spot=k;
                     break;
                 }
             }
@@ -113,6 +113,7 @@ void mutation_NewBranch5(){
             temp[j].vert = spot;
             //ついでに予約
             if(j==1){
+                temp[j].vert = 40;
             genes_reserves[i][spot].spot = 1;
             genes_reserves[i][spot].time = (rand() % ((TIMELIMIT-calc_travel_time(spot, MAX_SPOTS-1))/15))*15;}
         }

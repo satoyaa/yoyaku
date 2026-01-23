@@ -4,7 +4,7 @@
 #include "extern.h"
 
 
-void mutation_NewBranch3(){
+void mutation_NewBranch11(){
     for (int i = 1; i < POPULATION; i++)
     {
         double r = (double)rand()/RAND_MAX;
@@ -29,7 +29,7 @@ void mutation_NewBranch3(){
                 isReserve+=1;
             }
         }
-        int spot = 6;
+        int spot = 40;
         if (isReserve == 0)
         {
             int denominator = 0;
@@ -71,32 +71,53 @@ void mutation_NewBranch3(){
                 }
             }
         }
+        int length = 0;
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            if(genes[i][j].vert == -1){break;}
+            length += 1;
+        }
+        int idx = rand()%length;
         int index = 0;
         for (int j = 0; j < MAX_NODES; j++)
         {
             if(genes[i][index].vert == -1){break;}
-            if (genes[i][index].vert == spot)
+            if (j == idx)
             {
                 temp[j].vert = genes[i][index].vert;
-                temp[j].dest = genes[i][index].dest;
-                temp[j].time = genes[i][index].time;
+                temp[j].dest = j+2;
+                temp[j].time = genes_reserves[i][spot].time-calc_travel_time(genes[i][index].vert, spot);
                 index += 1;
-                continue;
+                temp[j+1].vert = spot;
+                temp[j+1].time = 100000;
+                temp[j+1].dest = -1;
+                j++;
+            }else{
+                temp[j].vert = genes[i][index].vert;
+                temp[j].dest = -1;
+                temp[j].time = 100000;
+                index += 1;
             }
-            temp[j].vert = genes[i][index].vert;
-            temp[j].dest = j+2;
-            temp[j].time = genes_reserves[i][spot].time-calc_travel_time(genes[i][index].vert, spot);
-            index += 1;
-            temp[j+1].vert = spot;
-            temp[j+1].time = 100000;
-            temp[j+1].dest = -1;
-            j++;
+            
+            
         }
         for (int j = 0; j < MAX_NODES; j++)
         {
             genes[i][j].vert = temp[j].vert;
-            genes[i][j].dest = temp[j].dest;
             genes[i][j].time = temp[j].time;
+            genes[i][j].dest = temp[j].dest;
+            //printf("%d ", genes[i][j].vert);
         }
+        //printf("\n");
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            //printf("%d ", genes[i][j].time);
+        }
+        //printf("\n");
+        for (int j = 0; j < MAX_NODES; j++)
+        {
+            //printf("%d ", genes[i][j].v);
+        }
+        //printf("\n");
     }
 }

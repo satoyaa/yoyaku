@@ -210,6 +210,7 @@ void calc_fitness(int start, int goal){
                 //printf("hello2\n");
                 //予約観光地では待ち時間0，早く着いた場合は予約時間まで待機．また，時間に間に合った場合は予約を使用，間に合わなかった場合はちょっとだけペナルティ
                 if(use_reserve[genes[i][pivot_index].vert]==1){
+                    //printf("hello");
                     if(duration <= genes_reserves[i][genes[i][pivot_index].vert].time){
                         duration = genes_reserves[i][genes[i][pivot_index].vert].time;//早く着いたら待つ
                         wait=0; //待ち時間は0
@@ -248,7 +249,7 @@ void calc_fitness(int start, int goal){
                     if (genes[i][k].dest != -1)
                     {
                         //現在時刻が出発時刻より早い場合は行先を目的地に更新
-                        if (duration > genes[i][k].time)
+                        if (duration < genes[i][k].time)
                         {
                             dest_node = genes[i][k].dest;
                         }//現在時刻より出発時刻が遅い場合は巡回地点に行先を代入
@@ -332,7 +333,7 @@ void calc_fitness(int start, int goal){
             //予約を使わなかった場合はペナルティ
             for (int k = 0; k < MAX_SPOTS; k++)
             {
-                satisfy -= (use_reserve[k] * 10000);
+                satisfy -= (use_reserve[k] * 100);
             }
             
             

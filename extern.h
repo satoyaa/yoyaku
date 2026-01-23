@@ -89,6 +89,7 @@ extern void mutation_NewBranch2();
 extern void mutation_NewBranch3();
 extern void mutation_NewBranch4();
 extern void mutation_NewBranch5();
+extern void mutation_NewBranch11();
 extern void local_search(int start, int goal);
 extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
