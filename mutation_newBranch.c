@@ -92,26 +92,56 @@ void mutation_NewBranch(){
         //TIMELIMIT / (rand() % 6 + 1); //出発時刻を選択
         //ブランチ作成前に確率の分母を作成（予約が出やすいように）
         int denominator = 0;
-        for (int j = 1; j < MAX_SPOTS-1; j++)
-        {
-            denominator+=genes_reserves[i][j].spot+1;
-        }
+        
         //ここに新たなブランチを作成する．ブランチsizeまで新しい遺伝子座で上書き，後ろにスライド（予約観光地が出やすくする処理）
         for (int j = points+1; j < points+branchSize+1; j++)
         {
+            denominator = 0;
+            for (int k = 1; k < MAX_SPOTS-1; k++)
+            {
+                if (j == points+1)
+                {
+                    if (spots[j].reservable == 1)
+                    {
+                        denominator+=spots[k].value;
+                    }
+                }else{
+                    denominator+=genes_reserves[i][k].spot+1;
+                }
+            }
             int spot = 1;
             int r = rand()%denominator;
             int current_sum = 0;
             for (int k = 1; k < MAX_SPOTS-1; k++)
             {
-                current_sum += genes_reserves[i][k].spot+1;
+                if (j == points+1)
+                {
+                    if (spots[j].reservable == 1)
+                    {
+                        current_sum+=spots[k].value;
+                    }
+                }else{
+                    current_sum += genes_reserves[i][k].spot+1;
+                }
                 if(r < current_sum){
                     spot=k;
                     break;
                 }
+                
             }
             //while ((spot == start) || (spot == goal)){spot = rand()%MAX_SPOTS;} //スタートとゴール以外の観光地をランダムに選択
             temp[j].vert = spot;
+            if (j == points+1)
+            {
+                genes_reserves[i][spot].spot = 1;
+                if((TIMELIMIT-(calc_travel_time(spot, MAX_SPOTS-1)+spots[spot].t))<15){
+                    genes_reserves[i][spot].time = 0;
+                }else{
+                    genes_reserves[i][spot].time = (rand() % ((TIMELIMIT-(calc_travel_time(spot, MAX_SPOTS-1)+spots[spot].t))/15))*15;
+                }
+                temp[points].time = genes_reserves[i][spot].time-calc_travel_time(genes[i][points].vert, spot);
+            }
+            
         }
         //ブランチ以降のノードをコピー
         if(isDelete < 0.5 && 0 < branches ){
