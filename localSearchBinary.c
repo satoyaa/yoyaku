@@ -1,4 +1,11 @@
 #include <stdio.h>
+/*
+ 局所探索: Binary（3点比較による二分探索風探索）
+ - 各予約観光地について，早め・中間・遅め の3候補時刻を作成し評価することで，
+     最適な予約時刻に向けて範囲を二分して収束させる手法を実装している。
+ - 範囲が十分小さくなるまで繰り返し，`calculate_fitness` により良い候補を選択する。
+ - 速度と局所解改善のバランスを取るための軽量な局所探索アルゴリズム。
+*/
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -56,7 +63,7 @@ void local_search_binary(int start, int goal){
             {
                 genes_reserves[2][i].time=TIMELIMIT;
             }
-            calc_fitness(start, goal);
+            calculate_fitness(start, goal);
             if (fitness[0]<=fitness[1] && fitness[2]<=fitness[1])
             {   
                 bestTime = bestTime;

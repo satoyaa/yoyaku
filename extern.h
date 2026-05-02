@@ -14,6 +14,7 @@
 #define reserve_time 2 //予約にかかる時間(分)，暫定的に2分
 #define EARTH_RAD 6378.137 // 地球の半径(km)
 #define BRANCHES 5 //分岐の数
+#define M_PI 3.14159265358979323846264338327952384626433832795
 
 
 typedef struct {
@@ -86,13 +87,13 @@ extern void local_search(int start, int goal);
 extern void local_search_ultimate(int start, int goal);
 extern void local_search_binary(int start, int goal);
 void mutation_newpop(int start, int goal);
-extern void readdata(const char * filename);
-extern void initialize(int start, int goal);
-extern void calc_fitness(int start, int goal);
+extern void read_data(const char * filename);
+extern void initialize_population(int start, int goal);
+extern void calculate_fitness(int start, int goal);
 extern int debug;
 extern double fitnessLog;
 extern double increase_rate;
-//extern void serchAll();
+//extern void search_all_routes();
 
 
 

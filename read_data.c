@@ -3,30 +3,18 @@
 #include <string.h>
 #include "extern.h"
 
-void readdata(const char * filename){
+void read_data(const char * filename){
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("I can't open such a file");
     }
 
-    
     int nodeCount = 0;
     char line[512];
 
     while (fgets(line, sizeof(line), file)) {
         // 改行除去
         line[strcspn(line, "\r\n")] = 0;
-
-        /*
-        if (strcmp(line, "NODE_COORD_SECTION") == 0) {
-            printf("hello0");
-            reading_coords = 1;
-            continue;
-        }
-        if (strcmp(line, "EOF") == 0) {
-            break;
-        }*/
-
 
         int vert;
         int value;
@@ -62,12 +50,10 @@ void readdata(const char * filename){
             {
                 break;
             }
-            
         }else {
             // 行フォーマットが合わない場合のデバッグ出力
             printf(" (%d): %s\n", n, line);
         }
-        
     }
 
     fclose(file);   

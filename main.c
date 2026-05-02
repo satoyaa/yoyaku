@@ -56,9 +56,9 @@ void ga(int start, int goal){
     unsigned int seed = (unsigned int)time(NULL); //実行毎に違うを出したい
     //unsigned int seed = 1766965875; //デバッグ用に固定した値を出したい 1000でバグる
     srand(seed);
-    initialize(start, goal); //(start, goal)
+    initialize_population(start, goal); //(start, goal)
     printf("initialization done.\n");
-    calc_fitness(start, goal);
+    calculate_fitness(start, goal);
     savemode = 0;
     local_search_mode = 0;
     printf("initial fitness calculation done.\n");
@@ -89,7 +89,7 @@ void ga(int start, int goal){
         mutation_newpop(start, goal);
         printf("mutation done, ");
         //評価値計算
-        calc_fitness(start, goal);
+        calculate_fitness(start, goal);
         printf("calculate fitness done.\n");
         
         
@@ -97,7 +97,7 @@ void ga(int start, int goal){
     }
     printf("\n");
     selection_tournament();
-    calc_fitness(start, goal);
+    calculate_fitness(start, goal);
     //local_search(start, goal);
     selection_tournament();
     if(useLocalResearch==1){
@@ -112,16 +112,16 @@ void ga(int start, int goal){
     min=INFINITY;
     max=-INFINITY;
     savemode = 1;
-    calc_fitness(start, goal);
+    calculate_fitness(start, goal);
     best = fitness[0];
     printf("best:%f\n",best);
 }
 
 int main(){
     //データの読込．
-    readdata("o-sakaFoodsX.txt");
+    read_data("o-sakaFoodsX.txt");
     //初期個体生成．
-    /* initialize(0, MAX_SPOTS-1);
+    // initialize_population(0, MAX_SPOTS-1);
     for (int i = 0; i < POPULATION; i++)
     {
         //printf("spot%d value is %d\n", i, spots[i].value);
@@ -129,15 +129,15 @@ int main(){
     
     //初期個体生成．
     TIMELIMIT = 120;
-    initialize(0, MAX_SPOTS-1);
+    initialize_population(0, MAX_SPOTS-1);
     
     //評価値計算．
     //printf("hello\n");
     clock_t time1, time2;
     time1 = clock();   
     //ga(0, MAX_SPOTS-1);
-    //serchAll(int start)
-    //calc_fitness();
+    //search_all_routes(int start)
+    //calculate_fitness();
     time2 = clock();
     for (int i = 0; i < POPULATION; i++)
     {

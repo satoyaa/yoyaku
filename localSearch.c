@@ -1,4 +1,11 @@
 #include <stdio.h>
+/*
+ 局所探索: reservation 時刻の最適化 (local_search)
+ - エリート個体（`genes[0]`）の予約時刻を正規化し，そこから僅かな時刻変更を加えた複数個体を生成して評価することで
+     予約時刻の局所最適化を行う。
+ - 正規化では移動時間や待ち時間（M/M/cモデル）を考慮して各予約に対する出発時刻を決定する。
+ - 生成した個体群を評価（`calculate_fitness`）し，より良い予約時刻を探索して最終的な解の改善を図る。
+*/
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -161,5 +168,5 @@ void local_search(int start, int goal){
             genes_reserves[i][j].time = genes_reserves[i][j].time + (rand()%11 - 5); //-5分から+5分の範囲でランダムに変更
         }
     }
-    calc_fitness(start, goal);
+    calculate_fitness(start, goal);
 }

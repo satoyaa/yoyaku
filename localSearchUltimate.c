@@ -1,4 +1,11 @@
 #include <stdio.h>
+/*
+ 局所探索: Ultimate（探索範囲を段階的に狭める探索）
+ - 予約時刻を正規化した上で，ある観光地ごとに時刻の探索範囲を段階的に縮小しながら
+     複数候補（早め，中間，遅め）を評価して最良の時刻を採用する。
+ - 二分探索に似た縮小戦略と複数候補の比較により，より精度の高い局所最適化を目指す。
+ - 評価は `calculate_fitness` を用いる。
+*/
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -174,7 +181,7 @@ void local_search_ultimate(int start, int goal){
                     genes_reserves[2][k].time+=range;
                 }
             }
-            calc_fitness(start, goal);
+            calculate_fitness(start, goal);
             if (fitness[0]<fitness[1] && fitness[2]<fitness[1])
             {   
                 best_index=1;
@@ -193,6 +200,6 @@ void local_search_ultimate(int start, int goal){
         }
     }
     printf("local search done\n");
-    calc_fitness(start, goal);
+    calculate_fitness(start, goal);
     local_search_mode = 0;
 }
